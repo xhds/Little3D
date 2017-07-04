@@ -16,20 +16,16 @@ namespace L3DMath {
 		Matrix(){ memset(m, 0, 16 * sizeof(float));}
 	};
 
-	Vector VectorAdd(const Vector& a, const Vector& b){
-		Vector ret;
+	void VectorAdd(Vector& ret, const Vector& a, const Vector& b){
 		ret.x = a.x + b.x;
 		ret.y = a.y + b.y;
 		ret.z = a.z + b.z;
-		return ret;
 	}
 
-	Vector VectorSub(const Vector& a, const Vector& b){
-		Vector ret;
+	void VectorSub(Vector& ret, const Vector& a, const Vector& b){		
 		ret.x = a.x - b.x;
 		ret.y = a.y - b.y;
 		ret.z = a.z - b.z;
-		return ret;
 	}
 
 	float VectorMod(const Vector& a){
@@ -50,73 +46,63 @@ namespace L3DMath {
 		a.z *= inv_mod;
 	}
 
-	Vector VectorGetNormalized(const Vector& a){
+	void VectorGetNormalized(Vector& ret, const Vector& a){
 		float inv_mod = 1.0f / VectorMod(a);
-		Vector ret;
 		ret.x = a.x * inv_mod;
 		ret.y = a.y * inv_mod;
 		ret.z = a.z * inv_mod;
 		ret.w = a.w;
-		return ret;
 	}
 
 	float VectorDot(const Vector& a, const Vector& b){
 		return a.x * b.x + a.y * b.y + a.z * b.z;
 	}
 
-	Vector VectorCross(const Vector& a, const Vector& b){
-		Vector ret;
+	void VectorCross(Vector& ret, const Vector& a, const Vector& b){		
 		ret.x = a.y * b.z - a.z * b.y;
 		ret.y = a.z * b.x - a.x * b.z;
 		ret.z = a.x * b.y - a.y * b.x;
-		return ret;
 	}
 
 	float FloatInterp(float a, float b, float t){
 		return a * t + b * (1.0f - t);
 	}
 
-	Vector VectorInterp(const Vector& a, const Vector& b, float t){
-		Vector ret;
+	void VectorInterp(Vector& ret, const Vector& a, const Vector& b, float t){		
 		ret.x = FloatInterp(a.x, b.x, t);
 		ret.y = FloatInterp(a.y, b.y, t);
 		ret.z = FloatInterp(a.z, b.z, t);
 		ret.w = 1.0f;
-		return ret;
 	}
 
-	Matrix MatrixMul(const Matrix& a, const Matrix& b){
-		Matrix ret;
+	void MatrixMul(Matrix& ret, const Matrix& a, const Matrix& b){		
 		for (int row = 0; row < 4; ++row){
-			for (int col = 0; col < 4; ++i) {
-				ret[row][col] = a[row][0] * b[0][col] + a[row][1] * b[1][col] + a[row][2] * b[2][col] + a[row][3] * b[3][col];
+			for (int col = 0; col < 4; ++col) {
+				ret.m[row][col] = a.m[row][0] * b.m[0][col] + a.m[row][1] * b.m[1][col] + a.m[row][2] * b.m[2][col] + a.m[row][3] * b.m[3][col];
 			}
-		}
-		return ret;
+		}		
 	}
 
-	Vector VectorMulMatrix(const Vector& a, const Matrix& b){
-		Vector ret;
-		ret.x = a.x * b[0][0] + a.y * b[1][0] + a.z * b[2][0] + a.w * b[3][0];
-		ret.y = a.x * b[0][1] + a.y * b[1][1] + a.z * b[2][1] + a.w * b[3][1];
-		ret.z = a.x * b[0][2] + a.y * b[1][2] + a.z * b[2][2] + a.w * b[3][2];
-		ret.w = a.x * b[0][3] + a.y * b[1][3] + a.z * b[2][3] + a.w * b[3][3];
-		return ret;
+	void VectorMulMatrix(Vector& ret, const Vector& a, const Matrix& b){		
+		ret.x = a.x * b.m[0][0] + a.y * b.m[1][0] + a.z * b.m[2][0] + a.w * b.m[3][0];
+		ret.y = a.x * b.m[0][1] + a.y * b.m[1][1] + a.z * b.m[2][1] + a.w * b.m[3][1];
+		ret.z = a.x * b.m[0][2] + a.y * b.m[1][2] + a.z * b.m[2][2] + a.w * b.m[3][2];
+		ret.w = a.x * b.m[0][3] + a.y * b.m[1][3] + a.z * b.m[2][3] + a.w * b.m[3][3];
 	}
 
 	void MatrixSetIdentity(Matrix& a){
-		a[0][0] = a[1][1] = a[2][2] = a[3][3] = 1.0f;
-		a[0][1] = a[0][2] = a[0][3] = 0.0f;
-		a[1][0] = a[1][2] = a[1][3] = 0.0f;
-		a[2][0] = a[2][1] = a[2][3] = 0.0f;
-		a[3][0] = a[3][1] = a[3][2] = 0.0f;
+		a.m[0][0] = a.m[1][1] = a.m[2][2] = a.m[3][3] = 1.0f;
+		a.m[0][1] = a.m[0][2] = a.m[0][3] = 0.0f;
+		a.m[1][0] = a.m[1][2] = a.m[1][3] = 0.0f;
+		a.m[2][0] = a.m[2][1] = a.m[2][3] = 0.0f;
+		a.m[3][0] = a.m[3][1] = a.m[3][2] = 0.0f;
 	}
 
 	void MatrixSetZero(Matrix& a){
-		a[0][0] = a[0][1] = a[0][2] = a[0][3] = 0.0f;
-		a[1][0] = a[1][1] = a[1][2] = a[1][3] = 0.0f;
-		a[2][0] = a[2][1] = a[2][2] = a[2][3] = 0.0f;
-		a[3][0] = a[3][1] = a[3][2] = a[3][3] = 0.0f;
+		a.m[0][0] = a.m[0][1] = a.m[0][2] = a.m[0][3] = 0.0f;
+		a.m[1][0] = a.m[1][1] = a.m[1][2] = a.m[1][3] = 0.0f;
+		a.m[2][0] = a.m[2][1] = a.m[2][2] = a.m[2][3] = 0.0f;
+		a.m[3][0] = a.m[3][1] = a.m[3][2] = a.m[3][3] = 0.0f;
 	}
 }
 
