@@ -85,7 +85,7 @@ namespace L3DGraphics{
 	}
 
 	bool IsClipedInCVV(const L3DMath::Vector& a){
-		return a.x < -a.w || a.x > a.w || a.y < -a.w || a.y > a.w || a.z < -a.w || a.z > a.w;
+		return a.x < -a.w || a.x > a.w || a.y < -a.w || a.y > a.w || a.z < 0.0f || a.z > a.w;
 	}
 
 	void ProjectiveToScreen(L3DMath::Vector& ret, const L3DMath::Vector& a, int width, int height) {
