@@ -12,6 +12,7 @@ namespace L3DApp{
 		App& operator=(const App&);
 
 		HWND m_window_hnd = 0;
+		
 
 	public:
 		static App& GetInstance(){
@@ -26,7 +27,6 @@ namespace L3DApp{
 		void Exit();
 
 		static LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
-
 	private:
 		void WinMsg();
 	};

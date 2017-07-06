@@ -7,10 +7,14 @@ namespace L3DApp{
 	static const int WINDOW_WIDTH = 640;
 	static const int WINDOW_HEIGHT = 480;
 
+	static int KEY_MAP[512];
+
 	int App::Init(){
 		if (m_window_hnd != 0){
 			return 1;
 		}
+
+		memset(KEY_MAP, 0, sizeof(int));
 
 		WNDCLASS window_class;
 		memset(&window_class, 0, sizeof(WNDCLASS));
@@ -43,11 +47,10 @@ namespace L3DApp{
 			PostQuitMessage(0);
 			break;
 		case WM_KEYDOWN:
-			if (wparam == VK_ESCAPE){
-				DestroyWindow(hwnd);
-			}
+			KEY_MAP[wparam & 511] = 1;
 			break;
 		case WM_KEYUP:
+			KEY_MAP[wparam & 511] = 0;
 			break;
 		default:
 			return DefWindowProc(hwnd, msg, wparam, lparam);
@@ -55,23 +58,22 @@ namespace L3DApp{
 		return 0;
 	}
 
-	void App::MainLoop(){
-		while (true)
-		{
-			WinMsg();
-		}
-	}
-
 	void App::WinMsg(){
 		MSG msg;
 		while (true)
 		{
-			if (!PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE)) 
+			if (!PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE))
 				break;
-			if (!GetMessage(&msg, NULL, 0, 0)) 
+			if (!GetMessage(&msg, NULL, 0, 0))
 				break;
 			DispatchMessage(&msg);
 		}
 	}
 
+	void App::MainLoop(){
+		while (KEY_MAP[VK_ESCAPE] == 0)
+		{
+			WinMsg();
+		}
+	}
 }//namespace L3DApp
