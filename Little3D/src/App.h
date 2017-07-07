@@ -33,6 +33,7 @@ namespace L3DApp{
 		static LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 	private:
 		void WinMsg();
+		void CleanBuffer();
 		void SwapBuffer();
 	};
 

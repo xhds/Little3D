@@ -1,11 +1,13 @@
 #include "App.h"
 #include <tchar.h>
+#include "Math.h"
+
 namespace L3DApp{
 
 	static const TCHAR* CLASS_NAME = _T("L3DWND");
 	static const TCHAR* TITLE = _T("Little3D");
-	static const int WINDOW_WIDTH = 640;
-	static const int WINDOW_HEIGHT = 480;
+	static const int WIN_W = 640;
+	static const int WIN_H = 480;
 	static const int FPS = 60;
 	static const int WAIT_FOR_FPS = 1000 / FPS;
 
@@ -31,7 +33,7 @@ namespace L3DApp{
 
 		m_window_hnd = CreateWindow(CLASS_NAME, TITLE
 			, WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX
-			, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, 0, 0, window_class.hInstance, 0);
+			, 0, 0, WIN_W, WIN_H, 0, 0, window_class.hInstance, 0);
 		if (0 == m_window_hnd){
 			return 3;
 		}
@@ -42,8 +44,8 @@ namespace L3DApp{
 		
 		BITMAPINFOHEADER bmp_header;
 		bmp_header.biSize = sizeof(BITMAPINFOHEADER);
-		bmp_header.biWidth = WINDOW_WIDTH;
-		bmp_header.biHeight = -WINDOW_HEIGHT;
+		bmp_header.biWidth = WIN_W;
+		bmp_header.biHeight = -WIN_H;
 		bmp_header.biPlanes = 1;
 		bmp_header.biBitCount = 32;
 		bmp_header.biCompression = BI_RGB;
@@ -63,7 +65,7 @@ namespace L3DApp{
 		}
 		m_origin_bmp = (HBITMAP)SelectObject(m_offscreen_dc, m_offscreen_bmp);
 		m_offscreen_framebuffer = (unsigned char*)section_ptr;
-		memset(m_offscreen_framebuffer, 0, WINDOW_WIDTH * WINDOW_HEIGHT * 4);
+		CleanBuffer();
 
 		SetForegroundWindow(m_window_hnd);
 		ShowWindow(m_window_hnd, SW_NORMAL);
@@ -103,15 +105,28 @@ namespace L3DApp{
 
 	void App::SwapBuffer(){
 		HDC origin_dc = GetDC(m_window_hnd);
-		BitBlt(origin_dc, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, m_offscreen_dc, 0, 0, SRCCOPY);
+		BitBlt(origin_dc, 0, 0, WIN_W, WIN_H, m_offscreen_dc, 0, 0, SRCCOPY);
 		ReleaseDC(m_window_hnd, origin_dc);
+	}
+
+	void App::CleanBuffer(){
+		int* p = (int*)m_offscreen_framebuffer;
+		for (int i = 0; i < WIN_H; ++i){
+			int color_r = 128 * (WIN_H - 1 - i) / (WIN_H - 1);
+			int color_g = 168 * (WIN_H - 1 - i) / (WIN_H - 1);
+			int color_b = 208 * (WIN_H - 1 - i) / (WIN_H - 1);
+			for (int j = 0; j < WIN_W; ++j){
+				*p = (color_r << 16) | (color_g << 8) | color_b;
+				++p;
+			}
+		}
 	}
 
 	void App::MainLoop(){
 		while (KEY_MAP[VK_ESCAPE] == 0)
 		{
 			WinMsg();
-
+			CleanBuffer();
 			SwapBuffer();
 			Sleep(WAIT_FOR_FPS);
 		}

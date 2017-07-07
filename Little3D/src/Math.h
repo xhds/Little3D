@@ -65,7 +65,7 @@ namespace L3DMath {
 	}
 
 	float FloatInterp(float a, float b, float t){
-		return a * t + b * (1.0f - t);
+		return a + (b - a) * t;
 	}
 
 	void VectorInterp(Vector& ret, const Vector& a, const Vector& b, float t){		
