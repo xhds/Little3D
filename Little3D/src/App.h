@@ -15,7 +15,6 @@ namespace L3DApp{
 		
 		HDC m_offscreen_dc = 0;
 		HBITMAP m_offscreen_bmp = 0;
-		HBITMAP m_origin_bmp = 0;
 		unsigned char* m_offscreen_framebuffer = 0;
 
 	public:

@@ -63,7 +63,8 @@ namespace L3DApp{
 		if (0 == m_offscreen_bmp){
 			return 4;
 		}
-		m_origin_bmp = (HBITMAP)SelectObject(m_offscreen_dc, m_offscreen_bmp);
+		HBITMAP origin_bmp = (HBITMAP)SelectObject(m_offscreen_dc, m_offscreen_bmp);
+		DeleteObject(origin_bmp);
 		m_offscreen_framebuffer = (unsigned char*)section_ptr;
 		CleanBuffer();
 
@@ -134,17 +135,10 @@ namespace L3DApp{
 
 	void App::Exit(){
 		if (m_offscreen_dc){
-			if (m_origin_bmp){
-				SelectObject(m_offscreen_dc, m_origin_bmp);
-				m_origin_bmp = 0;
-			}
 			DeleteDC(m_offscreen_dc);
 			m_offscreen_dc = 0;
 		}
-		if (m_offscreen_bmp){
-			DeleteObject(m_offscreen_bmp);
-			m_offscreen_bmp = 0;
-		}
+		m_offscreen_bmp = 0;
 		if (m_window_hnd){
 			CloseWindow(m_window_hnd);
 			m_window_hnd = 0;
