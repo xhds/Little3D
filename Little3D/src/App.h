@@ -13,6 +13,10 @@ namespace L3DApp{
 
 		HWND m_window_hnd = 0;
 		
+		HDC m_offscreen_dc = 0;
+		HBITMAP m_offscreen_bmp = 0;
+		HBITMAP m_origin_bmp = 0;
+		unsigned char* m_offscreen_framebuffer = 0;
 
 	public:
 		static App& GetInstance(){
@@ -29,6 +33,7 @@ namespace L3DApp{
 		static LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 	private:
 		void WinMsg();
+		void SwapBuffer();
 	};
 
 }//namespace L3DApp

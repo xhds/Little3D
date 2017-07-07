@@ -11,7 +11,6 @@ int main(void) {
 	if (0 == init_result){
 		app.MainLoop();
 	}
-
 	app.Exit();
 	return 0;
 }
