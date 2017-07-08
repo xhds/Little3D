@@ -4,12 +4,36 @@
 #include <Windows.h>
 
 namespace L3DGraphics{
-	class Device;
+	class Mesh;
+	class Transform;
 }
 
-class xmen;
-
 namespace L3DApp{
+
+	enum RENDER_STATE{
+		FRAME = 1,
+		COLOR = 2,
+		TEXTURE = 4
+	};
+
+	class Device{
+	public:
+		int* frame_buffer;
+		float* z_buffer;
+
+		int** row_idx_of_frame_buffer;
+		float** row_idx_of_z_buffer;
+
+		RENDER_STATE render_state;
+		int frame_color;
+	};
+
+	class GameObject{
+	public:
+		L3DGraphics::Transform* transform;
+		L3DGraphics::Mesh* mesh_renderer;
+		L3DGraphics::Mesh* mesh_filter;
+	};
 
 	class App{
 	private:
@@ -23,8 +47,9 @@ namespace L3DApp{
 		HBITMAP m_offscreen_bmp = 0;
 		unsigned char* m_offscreen_framebuffer = 0;
 
-		L3DGraphics::Device* m_soft_device;
-
+		Device m_soft_device;
+		L3DGraphics::Mesh* mesh;
+		GameObject m_game_obj;
 	public:
 		static App& GetInstance(){
 			static App instance;
@@ -46,8 +71,12 @@ namespace L3DApp{
 		void InitDevice();
 		void ReleaseDevice();
 
-		void DrawPixel(L3DGraphics::Device& device, int x, int y, int color);
-		void DrawLine(L3DGraphics::Device& device, int x1, int y1, int x2, int y2, int color);
+		void DrawPixel(int x, int y, int color);
+		void DrawLine(int x1, int y1, int x2, int y2, int color);
+		void DrawGameObject(const GameObject& obj);
+
+		void InitGameObject();
+		void ReleaseGameObject();
 	};
 
 }//namespace L3DApp

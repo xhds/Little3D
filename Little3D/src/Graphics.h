@@ -1,6 +1,5 @@
 #ifndef __L3D_GRAPHICS_H__
 #define __L3D_GRAPHICS_H__
-#include "Math.h"
 
 namespace L3DGraphics{
 
@@ -26,7 +25,7 @@ namespace L3DGraphics{
 		axi.y = y;
 		axi.z = z;
 		L3DMath::VectorSetNormalized(axi);
-		L3DMath::MatrixSetZero(ret);
+		L3DMath::MatrixSetIdentity(ret);
 		float one_sub_cost = 1.0f - cost;
 		ret.m[0][0] = axi.x * axi.x * one_sub_cost + cost;
 		ret.m[0][1] = axi.x * axi.y * one_sub_cost + axi.z * sint;
@@ -96,12 +95,12 @@ namespace L3DGraphics{
 		ret.w = a.w;
 	}
 
-	class Color{
+	/*class Color{
 	public:
-		float r;
-		float g;
-		float b;
-	};
+		int r;
+		int g;
+		int b;
+	};*/
 
 	class TexUV{
 	public:
@@ -112,16 +111,22 @@ namespace L3DGraphics{
 	class Vertex{
 	public:
 		L3DMath::Vector pos;
-		Color color;
+		int color;
 		TexUV tex;
 		float rhw;
 	};
 
 	class Triangle{
 	public:
-		Vertex p1;
-		Vertex p2;
-		Vertex p3;
+		int v[3];
+	};
+
+	class Mesh{
+	public:
+		int vertex_cnt;
+		Vertex* v_list;
+		int triangle_cnt;
+		Triangle* t_list;		
 	};
 
 	/*class ScanLine{
@@ -153,23 +158,5 @@ namespace L3DGraphics{
 	void TransformVector(L3DMath::Vector& ret, const L3DMath::Vector& a, const Transform& t){
 		L3DMath::VectorMulMatrix(ret, a, t.transform);
 	}
-
-	enum RENDER_STATE{
-		FRAME,
-		COLOR,
-		TEXTURE
-	};
-
-	class Device{
-	public:
-		int* frame_buffer;
-		float* z_buffer;
-
-		int** row_idx_of_frame_buffer;
-		float** row_idx_of_z_buffer;
-
-		RENDER_STATE render_state;
-		int frame_color;
-	};
 }
 #endif
