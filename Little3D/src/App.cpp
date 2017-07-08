@@ -16,37 +16,37 @@ namespace L3DApp{
 	static const int CAM_NEAR = 1;
 	static const int CAM_FAR = 500;
 
-	static const int RED = 255 << 16;
+	/*static const int RED = 255 << 16;
 	static const int GREEN = 255 << 8;
 	static const int BLUE = 255;
 
-	static const L3DMath::Vector LINES[2 * 2] = {
-		/*{ -30.0f, 0.0f, 30.0f, 1.0f },
-		{ 30.0f, 0.0f, 30.0f, 1.0f },
-		{ -30.0f, 0.0f, 15.0f, 1.0f },
-		{ 30.0f, 0.0f, 15.0f, 1.0f },*/
-		{ -30.0f, 0.0f, 0.0f, 1.0f },
-		{ 30.0f, 0.0f, 0.0f, 1.0f },
-		/*{ -30.0f, 0.0f, -15.0f, 1.0f },
-		{ 30.0f, 0.0f, -15.0f, 1.0f },
-		{ -30.0f, 0.0f, -30.0f, 1.0f },
-		{ 30.0f, 0.0f, -30.0f, 1.0f },
-		{ -30.0f, 0.0f, 30.0f, 1.0f },
-		{ -30.0f, 0.0f, -30.0f, 1.0f },
-		{ -15.0f, 0.0f, 30.0f, 1.0f },
-		{ -15.0f, 0.0f, -30.0f, 1.0f },*/
-		{ 0.0f, 0.0f, 30.0f, 1.0f },
-		{ 0.0f, 0.0f, -30.0f, 1.0f }
-		/*{ 15.0f, 0.0f, 30.0f, 1.0f },
-		{ 15.0f, 0.0f, -30.0f, 1.0f },
-		{ 30.0f, 0.0f, 30.0f, 1.0f },
-		{ 30.0f, 0.0f, -30.0f, 1.0f },*/
+	static const L3DMath::Vector LINES[2 * 10] = {
+		{ -10.0f, 0.0f, 10.0f, 1.0f },
+		{ 10.0f, 0.0f, 10.0f, 1.0f },
+		{ -10.0f, 0.0f, 5.0f, 1.0f },
+		{ 10.0f, 0.0f, 5.0f, 1.0f },
+		{ -10.0f, 0.0f, 0.0f, 1.0f },
+		{ 10.0f, 0.0f, 0.0f, 1.0f },
+		{ -10.0f, 0.0f, -5.0f, 1.0f },
+		{ 10.0f, 0.0f, -5.0f, 1.0f },
+		{ -10.0f, 0.0f, -10.0f, 1.0f },
+		{ 10.0f, 0.0f, -10.0f, 1.0f },
+		{ -10.0f, 0.0f, 10.0f, 1.0f },
+		{ -10.0f, 0.0f, -10.0f, 1.0f },
+		{ -5.0f, 0.0f, 10.0f, 1.0f },
+		{ -5.0f, 0.0f, -10.0f, 1.0f },
+		{ 0.0f, 0.0f, 10.0f, 1.0f },
+		{ 0.0f, 0.0f, -10.0f, 1.0f },
+		{ 5.0f, 0.0f, 10.0f, 1.0f },
+		{ 5.0f, 0.0f, -10.0f, 1.0f },
+		{ 10.0f, 0.0f, 10.0f, 1.0f },
+		{ 10.0f, 0.0f, -10.0f, 1.0f }
 	};
 
 	static const int LINE_COLOR[10] = {
 		BLUE, GREEN, RED, GREEN, BLUE,
 		BLUE, GREEN, RED, GREEN, BLUE
-	};
+	};*/
 
 	static int KEY_MAP[512];
 
@@ -162,8 +162,8 @@ namespace L3DApp{
 			}
 		}
 
-		if (trans){
-			for (int i = 0; i < 2; ++i){
+		/*if (trans){
+			for (int i = 0; i < 10; ++i){
 				L3DMath::Vector red_b = LINES[2 * i];
 				L3DMath::Vector red_e = LINES[2 * i + 1];
 				L3DGraphics::TransformVector(red_b, red_b, *trans);
@@ -172,13 +172,13 @@ namespace L3DApp{
 				L3DGraphics::ProjectiveToScreen(red_e, red_e, WIN_W, WIN_H);
 				DrawLine(int(red_b.x + 0.5f), int(red_b.y + 0.5f), int(red_e.x + 0.5f), int(red_e.y + 0.5f), LINE_COLOR[i]);
 			}
-		}
+		}*/
 	}
 
 	void App::MainLoop(){
 		InitGameObject();
 		bool log_dirty = true;
-		float cam_x = 0, cam_y = 0, cam_z = 0;
+		float cam_x = 0, cam_y = 0, cam_z = 0, obj_r_y = 0;
 		while (KEY_MAP[VK_ESCAPE] == 0){
 			WinMsg();
 
@@ -210,19 +210,23 @@ namespace L3DApp{
 				cam_x = cam_y = cam_z = 0.0f;
 				log_dirty = true;
 			}
+			if (KEY_MAP[VK_RIGHT] == 1){
+				obj_r_y -= 0.01f;
+			}
+			if (KEY_MAP[VK_LEFT] == 1){
+				obj_r_y += 0.01f;
+			}
 
 			L3DGraphics::MakeTranslateMatrix(m_game_obj.transform->position, 0.0f, 0.0f, 0.0f);
-			L3DGraphics::MakeRotateMatrix(m_game_obj.transform->rotation, 0.0f, 0.0f, 0.0f, 0.0f);
+			L3DGraphics::MakeRotateMatrix(m_game_obj.transform->rotation, 0.0f, 1.0f, 0.0f, obj_r_y);
 			L3DGraphics::MakeScaleMatrix(m_game_obj.transform->scale, 1.0f, 1.0f, 1.0f);
-			L3DMath::Vector eye = { 3.0f + cam_x, 0.0f + cam_y, 0.0f + cam_z, 1.0f};
+			L3DMath::Vector eye = { 0.0f + cam_x, 0.0f + cam_y, -5.5f + cam_z, 1.0f};
 			L3DMath::Vector look_at = { 0.0f, 0.0f, 0.0f, 1.0f };
-			//L3DMath::Vector look_at = { eye.x, eye.y, eye.z + 10.0f, 1.0f };
-			L3DMath::Vector up = { 0.0f, 0.0f, 1.0f, 1.0f};
+			L3DMath::Vector up = { 0.0f, 1.0f, 0.0f, 1.0f};
 			L3DGraphics::MakeCameraViewMatrix(m_game_obj.transform->view, eye, look_at, up);
-			//L3DGraphics::MakePerspectiveMatrixLH(m_game_obj.transform->perspective, (float)WIN_W, (float)WIN_H, (float)CAM_NEAR, (float)CAM_FAR);
 			L3DGraphics::MakePerspectiveMatrixFOVLH(m_game_obj.transform->perspective, 3.1415926f * 0.5f, (float)WIN_W / (float)WIN_H, (float)CAM_NEAR, (float)CAM_FAR);
 			L3DGraphics::UpdateTransform(*m_game_obj.transform);
-			CleanBuffer();
+			CleanBuffer(m_game_obj.transform);
 			DrawGameObject(m_game_obj);
 			SwapBuffer();
 			if (log_dirty){
@@ -356,17 +360,31 @@ namespace L3DApp{
 
 	void App::InitGameObject(){
 		
-		int vc = 4;
-		L3DGraphics::Vertex mesh_data[4] = {
+		int vc = 8;
+		L3DGraphics::Vertex mesh_data[8] = {
 			{ { -1.0f, 1.0f, -1.0f, 1.0f }, 0, { 0.0f, 0.0f }, 1.0f },
 			{ { 1.0f, 1.0f, -1.0f, 1.0f }, 0, { 1.0f, 0.0f }, 1.0f },
 			{ { 1.0f, -1.0f, -1.0f, 1.0f }, 0, { 1.0f, 1.0f }, 1.0f },
-			{ { -1.0f, -1.0f, -1.0f, 1.0f }, 0, { 0.0f, 1.0f }, 1.0f }
+			{ { -1.0f, -1.0f, -1.0f, 1.0f }, 0, { 0.0f, 1.0f }, 1.0f },
+			{ { -1.0f, 1.0f, 1.0f, 1.0f }, 0, { 0.0f, 0.0f }, 1.0f },
+			{ { 1.0f, 1.0f, 1.0f, 1.0f }, 0, { 1.0f, 0.0f }, 1.0f },
+			{ { 1.0f, -1.0f, 1.0f, 1.0f }, 0, { 1.0f, 1.0f }, 1.0f },
+			{ { -1.0f, -1.0f, 1.0f, 1.0f }, 0, { 0.0f, 1.0f }, 1.0f }
 		};
-		int tc = 2;
-		L3DGraphics::Triangle tri_data[2] {
+		int tc = 12;
+		L3DGraphics::Triangle tri_data[12] {
 			{ { 0, 1, 2 } },
-			{ { 0, 2, 3 } }
+			{ { 0, 2, 3 } },
+			{ { 1, 5, 6 } },
+			{ { 1, 6, 2 } },
+			{ { 5, 4, 7 } },
+			{ { 5, 7, 6 } },
+			{ { 4, 0, 3 } },
+			{ { 4, 3, 7 } },
+			{ { 4, 5, 1 } },
+			{ { 4, 1, 0 } },
+			{ { 3, 2, 6 } },
+			{ { 3, 6, 7 } }
 		};
 
 		mesh = new L3DGraphics::Mesh;
@@ -375,7 +393,7 @@ namespace L3DApp{
 		for (int i = 0; i < mesh->vertex_cnt; ++i){
 			mesh->v_list[i] = mesh_data[i];
 		}
-		mesh->triangle_cnt = 2;
+		mesh->triangle_cnt = tc;
 		mesh->t_list = new L3DGraphics::Triangle[mesh->triangle_cnt];
 		for (int i = 0; i < mesh->triangle_cnt; ++i){
 			mesh->t_list[i] = tri_data[i];
