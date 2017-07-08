@@ -121,8 +121,7 @@ namespace L3DApp{
 			int color_g = 168 * (WIN_H - 1 - i) / (WIN_H - 1);
 			int color_b = 208 * (WIN_H - 1 - i) / (WIN_H - 1);
 			for (int j = 0; j < WIN_W; ++j){
-				*p = (color_r << 16) | (color_g << 8) | color_b;
-				++p;
+				DrawPixel(*m_soft_device, j, i, (color_r << 16) | (color_g << 8) | color_b);
 				*z = 0.0f;
 				++z;
 			}
@@ -152,6 +151,8 @@ namespace L3DApp{
 	}
 
 	void App::DrawPixel(L3DGraphics::Device& device, int x, int y, int color){
+		if (x < 0 || x >= WIN_W || y < 0 || y >= WIN_H)
+			return;
 		device.row_idx_of_frame_buffer[y][x] = color;
 	}
 
@@ -162,8 +163,8 @@ namespace L3DApp{
 		m_soft_device->row_idx_of_frame_buffer = (int**)malloc(sizeof(int*) * WIN_H);
 		m_soft_device->row_idx_of_z_buffer = (float**)malloc(sizeof(float*)* WIN_H);
 		for (int i = 0; i < WIN_H; ++i){
-			m_soft_device->row_idx_of_frame_buffer[i] = m_soft_device->frame_buffer + i * WIN_W * sizeof(int);
-			m_soft_device->row_idx_of_z_buffer[i] = m_soft_device->z_buffer + i * WIN_W * sizeof(float);
+			m_soft_device->row_idx_of_frame_buffer[i] = m_soft_device->frame_buffer + i * WIN_W;
+			m_soft_device->row_idx_of_z_buffer[i] = m_soft_device->z_buffer + i * WIN_W;
 		}
 		m_soft_device->render_state = L3DGraphics::FRAME;
 		m_soft_device->frame_color = SPACE_LINE_COLOR;
