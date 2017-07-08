@@ -1,19 +1,52 @@
 #include "App.h"
+#include <tchar.h>
+#include <iostream>
 #include "Math.h"
 #include "Graphics.h"
-#include <tchar.h>
 
 namespace L3DApp{
 
 	static const TCHAR* CLASS_NAME = _T("L3DWND");
 	static const TCHAR* TITLE = _T("Little3D");
-	static const int WIN_W = 640;
-	static const int WIN_H = 480;
+	static const int WIN_W = 800;
+	static const int WIN_H = 600;
 	static const int FPS = 60;
 	static const int WAIT_FOR_FPS = 1000 / FPS;
 	static const int SPACE_LINE_COLOR = 0;
-	static const int CAM_NEAR = 10;
+	static const int CAM_NEAR = 1;
 	static const int CAM_FAR = 500;
+
+	static const int RED = 255 << 16;
+	static const int GREEN = 255 << 8;
+	static const int BLUE = 255;
+
+	static const L3DMath::Vector LINES[2 * 2] = {
+		/*{ -30.0f, 0.0f, 30.0f, 1.0f },
+		{ 30.0f, 0.0f, 30.0f, 1.0f },
+		{ -30.0f, 0.0f, 15.0f, 1.0f },
+		{ 30.0f, 0.0f, 15.0f, 1.0f },*/
+		{ -30.0f, 0.0f, 0.0f, 1.0f },
+		{ 30.0f, 0.0f, 0.0f, 1.0f },
+		/*{ -30.0f, 0.0f, -15.0f, 1.0f },
+		{ 30.0f, 0.0f, -15.0f, 1.0f },
+		{ -30.0f, 0.0f, -30.0f, 1.0f },
+		{ 30.0f, 0.0f, -30.0f, 1.0f },
+		{ -30.0f, 0.0f, 30.0f, 1.0f },
+		{ -30.0f, 0.0f, -30.0f, 1.0f },
+		{ -15.0f, 0.0f, 30.0f, 1.0f },
+		{ -15.0f, 0.0f, -30.0f, 1.0f },*/
+		{ 0.0f, 0.0f, 30.0f, 1.0f },
+		{ 0.0f, 0.0f, -30.0f, 1.0f }
+		/*{ 15.0f, 0.0f, 30.0f, 1.0f },
+		{ 15.0f, 0.0f, -30.0f, 1.0f },
+		{ 30.0f, 0.0f, 30.0f, 1.0f },
+		{ 30.0f, 0.0f, -30.0f, 1.0f },*/
+	};
+
+	static const int LINE_COLOR[10] = {
+		BLUE, GREEN, RED, GREEN, BLUE,
+		BLUE, GREEN, RED, GREEN, BLUE
+	};
 
 	static int KEY_MAP[512];
 
@@ -115,7 +148,7 @@ namespace L3DApp{
 		ReleaseDC(m_window_hnd, origin_dc);
 	}
 
-	void App::CleanBuffer(){
+	void App::CleanBuffer(L3DGraphics::Transform* trans){
 		int* p = m_soft_device.frame_buffer;
 		float* z = m_soft_device.z_buffer;
 		for (int i = 0; i < WIN_H; ++i){
@@ -128,36 +161,75 @@ namespace L3DApp{
 				++z;
 			}
 		}
+
+		if (trans){
+			for (int i = 0; i < 2; ++i){
+				L3DMath::Vector red_b = LINES[2 * i];
+				L3DMath::Vector red_e = LINES[2 * i + 1];
+				L3DGraphics::TransformVector(red_b, red_b, *trans);
+				L3DGraphics::TransformVector(red_e, red_e, *trans);
+				L3DGraphics::ProjectiveToScreen(red_b, red_b, WIN_W, WIN_H);
+				L3DGraphics::ProjectiveToScreen(red_e, red_e, WIN_W, WIN_H);
+				DrawLine(int(red_b.x + 0.5f), int(red_b.y + 0.5f), int(red_e.x + 0.5f), int(red_e.y + 0.5f), LINE_COLOR[i]);
+			}
+		}
 	}
 
 	void App::MainLoop(){
 		InitGameObject();
-		float diff = 0;
+		bool log_dirty = true;
+		float cam_x = 0, cam_y = 0, cam_z = 0;
 		while (KEY_MAP[VK_ESCAPE] == 0){
 			WinMsg();
 
-			if (KEY_MAP[VK_UP] == 1)
-			{
-				diff += 0.1f;
+			if (KEY_MAP['E'] == 1){
+				cam_y += 0.05f;
+				log_dirty = true;
 			}
-
-			if (KEY_MAP[VK_DOWN] == 1)
-			{
-				diff -= 0.1f;
+			if (KEY_MAP['Q'] == 1){
+				cam_y -= 0.05f;
+				log_dirty = true;
+			}
+			if (KEY_MAP['W'] == 1){
+				cam_z += 0.05f;
+				log_dirty = true;
+			}
+			if (KEY_MAP['S'] == 1){
+				cam_z -= 0.05f;
+				log_dirty = true;
+			}
+			if (KEY_MAP['A'] == 1){
+				cam_x -= 0.05f;
+				log_dirty = true;
+			}
+			if (KEY_MAP['D'] == 1){
+				cam_x += 0.05f;
+				log_dirty = true;
+			}
+			if (KEY_MAP['R'] == 1){
+				cam_x = cam_y = cam_z = 0.0f;
+				log_dirty = true;
 			}
 
 			L3DGraphics::MakeTranslateMatrix(m_game_obj.transform->position, 0.0f, 0.0f, 0.0f);
 			L3DGraphics::MakeRotateMatrix(m_game_obj.transform->rotation, 0.0f, 0.0f, 0.0f, 0.0f);
 			L3DGraphics::MakeScaleMatrix(m_game_obj.transform->scale, 1.0f, 1.0f, 1.0f);
-			L3DMath::Vector eye = { 0.0f, 0.0f, -10.0f + diff};
+			L3DMath::Vector eye = { 3.0f + cam_x, 0.0f + cam_y, 0.0f + cam_z, 1.0f};
 			L3DMath::Vector look_at = { 0.0f, 0.0f, 0.0f, 1.0f };
-			L3DMath::Vector up = { 0.0f, 1.0f, 0.0f };
+			//L3DMath::Vector look_at = { eye.x, eye.y, eye.z + 10.0f, 1.0f };
+			L3DMath::Vector up = { 0.0f, 0.0f, 1.0f, 1.0f};
 			L3DGraphics::MakeCameraViewMatrix(m_game_obj.transform->view, eye, look_at, up);
-			L3DGraphics::MakePerspectiveMatrixLH(m_game_obj.transform->perspective, (float)WIN_W, (float)WIN_H, (float)CAM_NEAR, (float)CAM_FAR);
+			//L3DGraphics::MakePerspectiveMatrixLH(m_game_obj.transform->perspective, (float)WIN_W, (float)WIN_H, (float)CAM_NEAR, (float)CAM_FAR);
+			L3DGraphics::MakePerspectiveMatrixFOVLH(m_game_obj.transform->perspective, 3.1415926f * 0.5f, (float)WIN_W / (float)WIN_H, (float)CAM_NEAR, (float)CAM_FAR);
 			L3DGraphics::UpdateTransform(*m_game_obj.transform);
 			CleanBuffer();
 			DrawGameObject(m_game_obj);
 			SwapBuffer();
+			if (log_dirty){
+				log_dirty = false;
+				std::cout << "===" << std::endl;
+				std::cout << "cam eye:[" << eye.x << "," << eye.y << "," << eye.z << "]" << std::endl;
+			}
 			Sleep(WAIT_FOR_FPS);
 		}
 	}
@@ -257,7 +329,7 @@ namespace L3DApp{
 			L3DGraphics::TransformVector(obj.mesh_renderer->v_list[i].pos, obj.mesh_filter->v_list[i].pos, *obj.transform);	
 			L3DGraphics::ProjectiveToScreen(m_game_obj.mesh_renderer->v_list[i].pos, m_game_obj.mesh_renderer->v_list[i].pos, WIN_W, WIN_H);
 		}
-		L3DMath::Vector screen_pos;
+		//L3DMath::Vector screen_pos;
 		for (int i = 0; i < obj.mesh_renderer->triangle_cnt; ++i){
 			if (m_soft_device.render_state & TEXTURE) {
 

@@ -65,7 +65,7 @@ namespace L3DApp{
 		static LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 	private:
 		void WinMsg();
-		void CleanBuffer();
+		void CleanBuffer(L3DGraphics::Transform* trans = 0);
 		void SwapBuffer();
 		
 		void InitDevice();

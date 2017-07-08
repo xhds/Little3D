@@ -1,8 +1,8 @@
 #include <iostream>
+//#include <vld.h>
 #include "App.h"
-
+using namespace std;
 int main(void) {
-	
 	std::cout << "Initiating..." << std::endl;
 	L3DApp::App& app = L3DApp::App::GetInstance();
 	int init_result = app.Init();
