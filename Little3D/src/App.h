@@ -47,6 +47,7 @@ namespace L3DApp{
 		void ReleaseDevice();
 
 		void DrawPixel(L3DGraphics::Device& device, int x, int y, int color);
+		void DrawLine(L3DGraphics::Device& device, int x1, int y1, int x2, int y2, int color);
 	};
 
 }//namespace L3DApp

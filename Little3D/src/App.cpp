@@ -129,9 +129,23 @@ namespace L3DApp{
 	}
 
 	void App::MainLoop(){
+		int diff = 0, diff_y = 0;
 		while (KEY_MAP[VK_ESCAPE] == 0){
 			WinMsg();
 			CleanBuffer();
+			if (KEY_MAP[VK_RIGHT] == 1){
+				diff+=2;
+			}
+			if (KEY_MAP[VK_LEFT] == 1) {
+				diff-=2;
+			}
+			if (KEY_MAP[VK_UP] == 1){
+				diff_y-=2;
+			}
+			if (KEY_MAP[VK_DOWN] == 1) {
+				diff_y+=2;
+			}
+			DrawLine(*m_soft_device, 200, 200, 300 + diff, 300+diff_y, 0);
 			SwapBuffer();
 			Sleep(WAIT_FOR_FPS);
 		}
@@ -180,6 +194,53 @@ namespace L3DApp{
 		m_soft_device->frame_buffer = 0;
 		delete m_soft_device;
 		m_soft_device = 0;
+	}
+
+	void App::DrawLine(L3DGraphics::Device& device, int x1, int y1, int x2, int y2, int color){
+		int dx = x1 - x2;
+		int dy = y1 - y2;
+		if (dx == 0){
+			int diff = dy > 0 ? -1 : 1;
+			for (int i = y1; i != y2; i += diff){
+				DrawPixel(device, x1, i, color);
+			}
+		}
+		else if (dy == 0)
+		{
+			int diff = dx > 0 ? -1 : 1;
+			for (int i = x1; i != x2; i += diff){
+				DrawPixel(device, i, y1, color);
+			}
+		}
+		else{
+			int tan_theta = abs(dy / dx);
+			if (tan_theta < 1){
+				int diff = dx > 0 ? -1 : 1;
+				int diff_j = dy > 0 ? -1 : 1;
+				int r = 0, dr = abs(dy), rx = abs(dx), j = y1;
+				for (int i = x1; i != x2; i += diff){
+					DrawPixel(device, i, j, color);
+					r += dr;
+					if (r >= rx) {
+						r -= rx;
+						j += diff_j;
+					}
+				}
+			}
+			else {
+				int diff = dy > 0 ? -1 : 1;
+				int diff_j = dx > 0 ? -1 : 1;
+				int r = 0, dr = abs(dx), ry = abs(dy), j = x1;
+				for (int i = y1; i != y2; i += diff){
+					DrawPixel(device, j, i, color);
+					r += dr;
+					if (r >= ry) {
+						r -= ry;
+						j += diff_j;
+					}
+				}
+			}
+		}
 	}
 	
 }//namespace L3DApp
