@@ -1,6 +1,7 @@
 #include "App.h"
 #include <tchar.h>
 #include "Math.h"
+#include "Graphics.h"
 
 namespace L3DApp{
 
@@ -10,6 +11,7 @@ namespace L3DApp{
 	static const int WIN_H = 480;
 	static const int FPS = 60;
 	static const int WAIT_FOR_FPS = 1000 / FPS;
+	static const int SPACE_LINE_COLOR = 0;
 
 	static int KEY_MAP[512];
 
@@ -66,6 +68,7 @@ namespace L3DApp{
 		HBITMAP origin_bmp = (HBITMAP)SelectObject(m_offscreen_dc, m_offscreen_bmp);
 		DeleteObject(origin_bmp);
 		m_offscreen_framebuffer = (unsigned char*)section_ptr;
+		InitDevice();
 		CleanBuffer();
 
 		SetForegroundWindow(m_window_hnd);
@@ -111,7 +114,8 @@ namespace L3DApp{
 	}
 
 	void App::CleanBuffer(){
-		int* p = (int*)m_offscreen_framebuffer;
+		int* p = m_soft_device->frame_buffer;
+		float* z = m_soft_device->z_buffer;
 		for (int i = 0; i < WIN_H; ++i){
 			int color_r = 128 * (WIN_H - 1 - i) / (WIN_H - 1);
 			int color_g = 168 * (WIN_H - 1 - i) / (WIN_H - 1);
@@ -119,13 +123,14 @@ namespace L3DApp{
 			for (int j = 0; j < WIN_W; ++j){
 				*p = (color_r << 16) | (color_g << 8) | color_b;
 				++p;
+				*z = 0.0f;
+				++z;
 			}
 		}
 	}
 
 	void App::MainLoop(){
-		while (KEY_MAP[VK_ESCAPE] == 0)
-		{
+		while (KEY_MAP[VK_ESCAPE] == 0){
 			WinMsg();
 			CleanBuffer();
 			SwapBuffer();
@@ -143,5 +148,37 @@ namespace L3DApp{
 			CloseWindow(m_window_hnd);
 			m_window_hnd = 0;
 		}
+		ReleaseDevice();
 	}
+
+	void App::DrawPixel(L3DGraphics::Device& device, int x, int y, int color){
+		device.row_idx_of_frame_buffer[y][x] = color;
+	}
+
+	void App::InitDevice(){
+		m_soft_device = new L3DGraphics::Device;
+		m_soft_device->frame_buffer = (int*)m_offscreen_framebuffer;
+		m_soft_device->z_buffer = (float*)malloc(sizeof(float)* WIN_H * WIN_W);
+		m_soft_device->row_idx_of_frame_buffer = (int**)malloc(sizeof(int*) * WIN_H);
+		m_soft_device->row_idx_of_z_buffer = (float**)malloc(sizeof(float*)* WIN_H);
+		for (int i = 0; i < WIN_H; ++i){
+			m_soft_device->row_idx_of_frame_buffer[i] = m_soft_device->frame_buffer + i * WIN_W * sizeof(int);
+			m_soft_device->row_idx_of_z_buffer[i] = m_soft_device->z_buffer + i * WIN_W * sizeof(float);
+		}
+		m_soft_device->render_state = L3DGraphics::FRAME;
+		m_soft_device->frame_color = SPACE_LINE_COLOR;
+	}
+
+	void App::ReleaseDevice(){
+		free(m_soft_device->row_idx_of_frame_buffer);
+		m_soft_device->row_idx_of_frame_buffer = 0;
+		free(m_soft_device->row_idx_of_z_buffer);
+		m_soft_device->row_idx_of_z_buffer = 0;
+		free(m_soft_device->z_buffer);
+		m_soft_device->z_buffer = 0;
+		m_soft_device->frame_buffer = 0;
+		delete m_soft_device;
+		m_soft_device = 0;
+	}
+	
 }//namespace L3DApp

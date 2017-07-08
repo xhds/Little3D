@@ -65,22 +65,22 @@ namespace L3DGraphics{
 		ret.m[0][3] = ret.m[1][3] = ret.m[2][3] = 0.0f;
 	}
 
-	void MakePerspectiveMatrixLH(L3DMath::Matrix& ret, float width, float height, float near, float far){
+	void MakePerspectiveMatrixLH(L3DMath::Matrix& ret, float width, float height, float near_c, float far_c){
 		L3DMath::MatrixSetZero(ret);
-		ret.m[0][0] = 2.0f * near / width;
-		ret.m[1][1] = 2.0f * near / height;
-		ret.m[2][2] = far / (far - near);
-		ret.m[3][2] = -1.0f * near * far / (far - near);
+		ret.m[0][0] = 2.0f * near_c / width;
+		ret.m[1][1] = 2.0f * near_c / height;
+		ret.m[2][2] = far_c / (far_c - near_c);
+		ret.m[3][2] = -1.0f * near_c * far_c / (far_c - near_c);
 		ret.m[2][3] = 1.0f;
 	}
 
-	void MakePerspectiveMatrixFOVLH(L3DMath::Matrix& ret, float fovh, float aspect, float near, float far){
+	void MakePerspectiveMatrixFOVLH(L3DMath::Matrix& ret, float fovh, float aspect, float near_c, float far_c){
 		L3DMath::MatrixSetZero(ret);
 		float r = 1.0f / tan(fovh * 0.5f);
 		ret.m[0][0] = r;
 		ret.m[1][1] = r * aspect;
-		ret.m[2][2] = far / (far - near);
-		ret.m[3][2] = -1.0f * near * far / (far - near);
+		ret.m[2][2] = far_c / (far_c - near_c);
+		ret.m[3][2] = -1.0f * near_c * far_c / (far_c - near_c);
 		ret.m[2][3] = 1.0f;
 	}
 
@@ -154,6 +154,22 @@ namespace L3DGraphics{
 		L3DMath::VectorMulMatrix(ret, a, t.transform);
 	}
 
+	enum RENDER_STATE{
+		FRAME,
+		COLOR,
+		TEXTURE
+	};
 
+	class Device{
+	public:
+		int* frame_buffer;
+		float* z_buffer;
+
+		int** row_idx_of_frame_buffer;
+		float** row_idx_of_z_buffer;
+
+		RENDER_STATE render_state;
+		int frame_color;
+	};
 }
 #endif
