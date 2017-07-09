@@ -312,6 +312,7 @@ namespace L3DApp{
 		int dy = y1 - y2;
 		if (dx == 0){
 			int diff = dy > 0 ? -1 : 1;
+			y2 = diff > 0 ? y2 + 1 : y2 - 1;
 			for (int i = y1; i != y2; i += diff){
 				DrawPixel(x1, i, color);
 			}
@@ -319,6 +320,7 @@ namespace L3DApp{
 		else if (dy == 0)
 		{
 			int diff = dx > 0 ? -1 : 1;
+			x2 = diff > 0 ? x2 + 1 : x2 - 1;
 			for (int i = x1; i != x2; i += diff){
 				DrawPixel(i, y1, color);
 			}
@@ -329,6 +331,7 @@ namespace L3DApp{
 				int diff = dx > 0 ? -1 : 1;
 				int diff_j = dy > 0 ? -1 : 1;
 				int r = 0, dr = abs(dy), rx = abs(dx), j = y1;
+				x2 = diff > 0 ? x2 + 1 : x2 - 1;
 				for (int i = x1; i != x2; i += diff){
 					DrawPixel(i, j, color);
 					r += dr;
@@ -342,6 +345,7 @@ namespace L3DApp{
 				int diff = dy > 0 ? -1 : 1;
 				int diff_j = dx > 0 ? -1 : 1;
 				int r = 0, dr = abs(dx), ry = abs(dy), j = x1;
+				y2 = diff > 0 ? y2 + 1 : y2 - 1;
 				for (int i = y1; i != y2; i += diff){
 					DrawPixel(j, i, color);
 					r += dr;
