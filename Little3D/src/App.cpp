@@ -12,7 +12,7 @@ namespace L3DApp{
 	static const TCHAR* TITLE = _T("Little3D");
 	static const int WIN_W = 800;
 	static const int WIN_H = 600;
-	static const int FPS = 60;
+	static const int FPS = 30;
 	static const int WAIT_FOR_FPS = 1000 / FPS;
 	static const int SPACE_LINE_COLOR = 0;
 	static const int CAM_NEAR = 1;
@@ -640,7 +640,7 @@ namespace L3DApp{
 
 	void App::DrawStandardTriangle(const Vertex& peak, const Vertex& left, const Vertex& right
 		, int peak_y, int line_y, RENDER_STATE rs, const Texture* ts){
-		if (peak_y == line_y){
+		if (peak_y == line_y || peak_y < 0 || peak_y >= WIN_H){
 			return;
 		}
 		int diff = 0;
@@ -663,6 +663,9 @@ namespace L3DApp{
 			VertexDivide(step, scan_left, scan_right);
 			int x_begin = int(scan_left.pos.x + 0.5f);
 			int x_end = int(scan_right.pos.x + 0.5f);
+			if (x_begin < 0 || x_begin >= WIN_W || x_end < 0 || x_end >= WIN_W || x_begin > x_end) {
+				continue;
+			}
 			for (int index_x = x_begin; index_x <= x_end; ++index_x){
 				if (scan_left.rhw >= m_soft_device.row_idx_of_z_buffer[index_y][index_x]){
 					m_soft_device.row_idx_of_z_buffer[index_y][index_x] = scan_left.rhw;
