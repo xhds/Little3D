@@ -154,7 +154,7 @@ namespace L3DApp{
 		ReleaseDC(m_window_hnd, origin_dc);
 	}
 
-	void App::CleanBuffer(L3DGraphics::Transform* trans){
+	void App::CleanBuffer(Transform* trans){
 		int* p = m_soft_device.frame_buffer;
 		float* z = m_soft_device.z_buffer;
 		for (int i = 0; i < WIN_H; ++i){
@@ -172,10 +172,10 @@ namespace L3DApp{
 			for (int i = 0; i < 10; ++i){
 				L3DMath::Vector red_b = LINES[2 * i];
 				L3DMath::Vector red_e = LINES[2 * i + 1];
-				L3DGraphics::TransformVector(red_b, red_b, *trans);
-				L3DGraphics::TransformVector(red_e, red_e, *trans);
-				L3DGraphics::ProjectiveToScreen(red_b, red_b, WIN_W, WIN_H);
-				L3DGraphics::ProjectiveToScreen(red_e, red_e, WIN_W, WIN_H);
+				TransformVector(red_b, red_b, *trans);
+				TransformVector(red_e, red_e, *trans);
+				ProjectiveToScreen(red_b, red_b, WIN_W, WIN_H);
+				ProjectiveToScreen(red_e, red_e, WIN_W, WIN_H);
 				DrawLine(int(red_b.x + 0.5f), int(red_b.y + 0.5f), int(red_e.x + 0.5f), int(red_e.y + 0.5f), LINE_COLOR[i]);
 			}
 		}*/
@@ -235,15 +235,15 @@ namespace L3DApp{
 				m_soft_device.render_state = RENDER_STATE(m_soft_device.render_state | RS_COLOR);
 			}
 
-			L3DGraphics::MakeTranslateMatrix(m_game_obj.transform->position, 0.0f, 0.0f, 0.0f);
-			L3DGraphics::MakeRotateMatrix(m_game_obj.transform->rotation, 0.0f, 1.0f, 0.0f, obj_r_y);
-			L3DGraphics::MakeScaleMatrix(m_game_obj.transform->scale, 1.0f, 1.0f, 1.0f);
+			MakeTranslateMatrix(m_game_obj.transform->position, 0.0f, 0.0f, 0.0f);
+			MakeRotateMatrix(m_game_obj.transform->rotation, 0.0f, 1.0f, 0.0f, obj_r_y);
+			MakeScaleMatrix(m_game_obj.transform->scale, 1.0f, 1.0f, 1.0f);
 			L3DMath::Vector eye = { 0.0f + cam_x, 0.0f + cam_y, -5.5f + cam_z, 1.0f};
 			L3DMath::Vector look_at = { 0.0f, 0.0f, 0.0f, 1.0f };
 			L3DMath::Vector up = { 0.0f, 1.0f, 0.0f, 1.0f};
-			L3DGraphics::MakeCameraViewMatrix(m_game_obj.transform->view, eye, look_at, up);
-			L3DGraphics::MakePerspectiveMatrixFOVLH(m_game_obj.transform->perspective, 3.1415926f * 0.5f, (float)WIN_W / (float)WIN_H, (float)CAM_NEAR, (float)CAM_FAR);
-			L3DGraphics::UpdateTransform(*m_game_obj.transform);
+			MakeCameraViewMatrix(m_game_obj.transform->view, eye, look_at, up);
+			MakePerspectiveMatrixFOVLH(m_game_obj.transform->perspective, 3.1415926f * 0.5f, (float)WIN_W / (float)WIN_H, (float)CAM_NEAR, (float)CAM_FAR);
+			UpdateTransform(*m_game_obj.transform);
 			CleanBuffer(m_game_obj.transform);
 			DrawGameObject(m_game_obj);
 			SwapBuffer();
@@ -352,18 +352,18 @@ namespace L3DApp{
 	
 	void App::DrawGameObject(const GameObject& obj){
 		for (int i = 0; i < obj.mesh_renderer->vertex_cnt; ++i){
-			L3DGraphics::TransformVector(obj.mesh_renderer->v_list[i].pos, obj.mesh_filter->v_list[i].pos, *obj.transform);	
+			TransformVector(obj.mesh_renderer->v_list[i].pos, obj.mesh_filter->v_list[i].pos, *obj.transform);	
 		}
 		for (int i = 0; i < obj.mesh_renderer->triangle_cnt; ++i){
-			const L3DGraphics::Triangle& t = obj.mesh_renderer->t_list[i];
-			const L3DGraphics::Vertex& v0 = obj.mesh_renderer->v_list[t.v[0]];
-			const L3DGraphics::Vertex& v1 = obj.mesh_renderer->v_list[t.v[1]];
-			const L3DGraphics::Vertex& v2 = obj.mesh_renderer->v_list[t.v[2]];
-			if (!L3DGraphics::IsClipedInCVV(v0.pos) && !L3DGraphics::IsClipedInCVV(v1.pos) && !L3DGraphics::IsClipedInCVV(v2.pos)){
+			const Triangle& t = obj.mesh_renderer->t_list[i];
+			const Vertex& v0 = obj.mesh_renderer->v_list[t.v[0]];
+			const Vertex& v1 = obj.mesh_renderer->v_list[t.v[1]];
+			const Vertex& v2 = obj.mesh_renderer->v_list[t.v[2]];
+			if (!IsClipedInCVV(v0.pos) && !IsClipedInCVV(v1.pos) && !IsClipedInCVV(v2.pos)){
 				L3DMath::Vector s0, s1, s2;  //screen float
-				L3DGraphics::ProjectiveToScreen(s0, v0.pos, WIN_W, WIN_H);
-				L3DGraphics::ProjectiveToScreen(s1, v1.pos, WIN_W, WIN_H);
-				L3DGraphics::ProjectiveToScreen(s2, v2.pos, WIN_W, WIN_H);
+				ProjectiveToScreen(s0, v0.pos, WIN_W, WIN_H);
+				ProjectiveToScreen(s1, v1.pos, WIN_W, WIN_H);
+				ProjectiveToScreen(s2, v2.pos, WIN_W, WIN_H);
 				if (IsBackfaceInScreen(s0, s1, s2)){  //backface-culling
 					continue;
 				}
@@ -372,7 +372,16 @@ namespace L3DApp{
 				if (m_soft_device.render_state & RS_TEXTURE || m_soft_device.render_state & RS_COLOR) {
 					Vertex rs0 = v0, rs1 = v1, rs2 = v2;
 					rs0.pos = s0, rs1.pos = s1, rs2.pos = s2;
-					DrawTriangle(rs0, rs1, rs2, v0x, v0y, v1x, v1y, v2x, v2y, m_soft_device.render_state);
+					rs0.rhw = 1.0f / rs0.pos.w;
+					rs1.rhw = 1.0f / rs1.pos.w;
+					rs2.rhw = 1.0f / rs2.pos.w;
+					rs0.tex.u *= rs0.rhw;
+					rs0.tex.v *= rs0.rhw;
+					rs1.tex.u *= rs1.rhw;
+					rs1.tex.v *= rs1.rhw;
+					rs2.tex.u *= rs2.rhw;
+					rs2.tex.v *= rs2.rhw;
+					DrawTriangle(rs0, rs1, rs2, v0x, v0y, v1x, v1y, v2x, v2y, m_soft_device.render_state, texture_res);
 				}
 				if (m_soft_device.render_state & RS_FRAME){
 					DrawLine(v0x, v0y, v1x, v1y, m_soft_device.frame_color);
@@ -384,8 +393,46 @@ namespace L3DApp{
 	}
 
 	void App::InitGameObject(){
+		texture_res = new Texture;
+		texture_res->w = texture_res->h = 256;
+		int tex_size = texture_res->w * texture_res->h;
+		texture_res->r = new float[tex_size];
+		texture_res->g = new float[tex_size];
+		texture_res->b = new float[tex_size];
+		texture_res->a = new float[tex_size];
+		texture_res->row_r = new float*[texture_res->h];
+		texture_res->row_g = new float*[texture_res->h];
+		texture_res->row_b = new float*[texture_res->h];
+		texture_res->row_a = new float*[texture_res->h];
+		for (int i = 0; i < texture_res->h; ++i){
+			texture_res->row_r[i] = texture_res->r + i * texture_res->w;
+			texture_res->row_g[i] = texture_res->g + i * texture_res->w;
+			texture_res->row_b[i] = texture_res->b + i * texture_res->w;
+			texture_res->row_a[i] = texture_res->a + i * texture_res->w;
+		}
+		for (int y = 0; y < texture_res->h; ++y){
+			for (int x = 0; x < texture_res->w; ++x){
+				if ((y / 32) % 2 == 0 && (x / 32) % 2 == 0){
+					texture_res->row_r[y][x] = 0.0f;
+					texture_res->row_g[y][x] = 128.0f;
+					texture_res->row_b[y][x] = 192.0f;
+				}
+				else if ((y / 32) % 2 == 1 && (x / 32) % 2 == 1){
+					texture_res->row_r[y][x] = 0.0f;
+					texture_res->row_g[y][x] = 128.0f;
+					texture_res->row_b[y][x] = 192.0f;
+				}
+				else {
+					texture_res->row_r[y][x] = 255.0f;
+					texture_res->row_g[y][x] = 255.0f;
+					texture_res->row_b[y][x] = 255.0f;
+				}
+				texture_res->row_a[y][x] = 1.0f;
+			}
+		}
+
 		int vc = 8;
-		L3DGraphics::Vertex mesh_data[8] = {
+		Vertex mesh_data[8] = {
 			{ { -1.0f, 1.0f, -1.0f, 1.0f }, 255.0f, 0.0f, 0.0f, { 0.0f, 0.0f }, 1.0f },
 			{ { 1.0f, 1.0f, -1.0f, 1.0f }, 0.0f, 255.0f, 0.0f, { 1.0f, 0.0f }, 1.0f },
 			{ { 1.0f, -1.0f, -1.0f, 1.0f }, 0.0f, 0.0f, 255.0f , { 1.0f, 1.0f }, 1.0f },
@@ -396,7 +443,7 @@ namespace L3DApp{
 			{ { -1.0f, -1.0f, 1.0f, 1.0f },  0.0f, 0.0f, 0.0f , { 0.0f, 1.0f }, 1.0f }
 		};
 		int tc = 12;
-		L3DGraphics::Triangle tri_data[12] {
+		Triangle tri_data[12] {
 			{ { 0, 1, 2 } },
 			{ { 0, 2, 3 } },
 			{ { 1, 5, 6 } },
@@ -412,56 +459,75 @@ namespace L3DApp{
 		};
 
 		/*int vc = 3;
-		L3DGraphics::Vertex mesh_data[3] = {
+		Vertex mesh_data[3] = {
 			{ { -1.0f, 1.0f, -1.0f, 1.0f }, 0, { 0.0f, 0.0f }, 1.0f },
 			{ { 1.0f, 1.0f, -1.0f, 1.0f }, 0, { 1.0f, 0.0f }, 1.0f },
 			{ { 1.0f, -1.0f, -1.0f, 1.0f }, 0, { 1.0f, 1.0f }, 1.0f }
 		};
 		int tc = 1;
-		L3DGraphics::Triangle tri_data[1] {
+		Triangle tri_data[1] {
 			{ { 0, 1, 2 } }
 		};*/
-
-		mesh = new L3DGraphics::Mesh;
-		mesh->vertex_cnt = vc;
-		mesh->v_list = new L3DGraphics::Vertex[mesh->vertex_cnt];
-		for (int i = 0; i < mesh->vertex_cnt; ++i){
-			mesh->v_list[i] = mesh_data[i];
+	
+		mesh_res = new Mesh;
+		mesh_res->vertex_cnt = vc;
+		mesh_res->v_list = new Vertex[mesh_res->vertex_cnt];
+		for (int i = 0; i < mesh_res->vertex_cnt; ++i){
+			mesh_res->v_list[i] = mesh_data[i];
 		}
-		mesh->triangle_cnt = tc;
-		mesh->t_list = new L3DGraphics::Triangle[mesh->triangle_cnt];
-		for (int i = 0; i < mesh->triangle_cnt; ++i){
-			mesh->t_list[i] = tri_data[i];
-		}
-
-		m_game_obj.mesh_renderer = new L3DGraphics::Mesh;
-		m_game_obj.mesh_renderer->vertex_cnt = mesh->vertex_cnt;
-		m_game_obj.mesh_renderer->v_list = new L3DGraphics::Vertex[m_game_obj.mesh_renderer->vertex_cnt];
-		for (int i = 0; i < mesh->vertex_cnt; ++i){
-			m_game_obj.mesh_renderer->v_list[i] = mesh->v_list[i];
+		mesh_res->triangle_cnt = tc;
+		mesh_res->t_list = new Triangle[mesh_res->triangle_cnt];
+		for (int i = 0; i < mesh_res->triangle_cnt; ++i){
+			mesh_res->t_list[i] = tri_data[i];
 		}
 
-		m_game_obj.mesh_renderer->triangle_cnt = mesh->triangle_cnt;
-		m_game_obj.mesh_renderer->t_list = new L3DGraphics::Triangle[m_game_obj.mesh_renderer->triangle_cnt];
-		for (int i = 0; i < mesh->triangle_cnt; ++i){
-			m_game_obj.mesh_renderer->t_list[i] = mesh->t_list[i];
+		m_game_obj.mesh_renderer = new Mesh;
+		m_game_obj.mesh_renderer->vertex_cnt = mesh_res->vertex_cnt;
+		m_game_obj.mesh_renderer->v_list = new Vertex[m_game_obj.mesh_renderer->vertex_cnt];
+		for (int i = 0; i < mesh_res->vertex_cnt; ++i){
+			m_game_obj.mesh_renderer->v_list[i] = mesh_res->v_list[i];
 		}
 
-		m_game_obj.transform = new L3DGraphics::Transform;
-		m_game_obj.mesh_filter = mesh;
-		L3DGraphics::UpdateTransform(*m_game_obj.transform);
+		m_game_obj.mesh_renderer->triangle_cnt = mesh_res->triangle_cnt;
+		m_game_obj.mesh_renderer->t_list = new Triangle[m_game_obj.mesh_renderer->triangle_cnt];
+		for (int i = 0; i < mesh_res->triangle_cnt; ++i){
+			m_game_obj.mesh_renderer->t_list[i] = mesh_res->t_list[i];
+		}
+
+		m_game_obj.transform = new Transform;
+		m_game_obj.mesh_filter = mesh_res;
+		UpdateTransform(*m_game_obj.transform);
 	}
 
 	void App::ReleaseGameObject(){
 
-		delete[] mesh->v_list;
-		mesh->v_list = 0;
-		mesh->vertex_cnt = 0;
-		delete[] mesh->t_list;
-		mesh->t_list = 0;
-		mesh->vertex_cnt = 0;
-		delete mesh;
-		mesh = 0;
+		delete[] texture_res->row_a;
+		texture_res->row_a = 0;
+		delete[] texture_res->row_r;
+		texture_res->row_r = 0;
+		delete[] texture_res->row_g;
+		texture_res->row_g = 0;
+		delete[] texture_res->row_b;
+		texture_res->row_b = 0;
+		delete[] texture_res->a;
+		texture_res->a = 0;
+		delete[] texture_res->r;
+		texture_res->r = 0;
+		delete[] texture_res->g;
+		texture_res->g = 0;
+		delete[] texture_res->b;
+		texture_res->b = 0;
+		delete texture_res;
+		texture_res = 0;
+
+		delete[] mesh_res->v_list;
+		mesh_res->v_list = 0;
+		mesh_res->vertex_cnt = 0;
+		delete[] mesh_res->t_list;
+		mesh_res->t_list = 0;
+		mesh_res->vertex_cnt = 0;
+		delete mesh_res;
+		mesh_res = 0;
 
 		delete[] m_game_obj.mesh_renderer->v_list;
 		m_game_obj.mesh_renderer->v_list = 0;
@@ -478,9 +544,9 @@ namespace L3DApp{
 		m_game_obj.mesh_filter = 0;
 	}
 
-	void App::DrawTriangle(const L3DGraphics::Vertex& v0, const L3DGraphics::Vertex& v1, const L3DGraphics::Vertex& v2
-		, int s0_x, int s0_y, int s1_x, int s1_y, int s2_x, int s2_y, RENDER_STATE rs){
-		const L3DGraphics::Vertex *p0 = &v0, *p1 = &v1, *p2 = &v2;
+	void App::DrawTriangle(const Vertex& v0, const Vertex& v1, const Vertex& v2
+		, int s0_x, int s0_y, int s1_x, int s1_y, int s2_x, int s2_y, RENDER_STATE rs, const Texture* ts){
+		const Vertex *p0 = &v0, *p1 = &v1, *p2 = &v2;
 		if (s0_y > s1_y){
 			int temp = s0_y;
 			s0_y = s1_y;
@@ -488,7 +554,7 @@ namespace L3DApp{
 			temp = s0_x;
 			s0_x = s1_x;
 			s1_x = temp;
-			const L3DGraphics::Vertex *pt = p0;
+			const Vertex *pt = p0;
 			p0 = p1;
 			p1 = pt;
 		}
@@ -499,7 +565,7 @@ namespace L3DApp{
 			temp = s0_x;
 			s0_x = s2_x;
 			s2_x = temp;
-			const L3DGraphics::Vertex *pt = p0;
+			const Vertex *pt = p0;
 			p0 = p2;
 			p2 = pt;
 		}
@@ -510,24 +576,24 @@ namespace L3DApp{
 			temp = s1_x;
 			s1_x = s2_x;
 			s2_x = temp;
-			const L3DGraphics::Vertex *pt = p1;
+			const Vertex *pt = p1;
 			p1 = p2;
 			p2 = pt;
 		}
 		if (s0_y == s1_y){
 			if (s0_x < s1_x) {
-				DrawStandardTriangle(*p2, *p0, *p1, s2_y, s0_y, rs);
+				DrawStandardTriangle(*p2, *p0, *p1, s2_y, s0_y, rs, ts);
 			}
 			else {
-				DrawStandardTriangle(*p2, *p1, *p0, s2_y, s0_y, rs);
+				DrawStandardTriangle(*p2, *p1, *p0, s2_y, s0_y, rs, ts);
 			}
 		}
 		else if (s1_y == s2_y){
 			if (s1_x < s2_x) {
-				DrawStandardTriangle(*p0, *p1, *p2, s0_y, s2_y, rs);
+				DrawStandardTriangle(*p0, *p1, *p2, s0_y, s2_y, rs, ts);
 			}
 			else {
-				DrawStandardTriangle(*p0, *p2, *p1, s0_y, s2_y, rs);
+				DrawStandardTriangle(*p0, *p2, *p1, s0_y, s2_y, rs, ts);
 			}
 		}
 		else {
@@ -536,18 +602,18 @@ namespace L3DApp{
 			Vertex mid;
 			VertexInterp(mid, *p2, *p0, t);
 			if (mid.pos.x < p1->pos.x){
-				DrawStandardTriangle(*p0, mid, *p1, s0_y, s1_y, rs);
-				DrawStandardTriangle(*p2, mid, *p1, s2_y, s1_y, rs);
+				DrawStandardTriangle(*p0, mid, *p1, s0_y, s1_y, rs, ts);
+				DrawStandardTriangle(*p2, mid, *p1, s2_y, s1_y, rs, ts);
 			}
 			else {
-				DrawStandardTriangle(*p0, *p1, mid, s0_y, s1_y, rs);
-				DrawStandardTriangle(*p2, *p1, mid, s2_y, s1_y, rs);
+				DrawStandardTriangle(*p0, *p1, mid, s0_y, s1_y, rs, ts);
+				DrawStandardTriangle(*p2, *p1, mid, s2_y, s1_y, rs, ts);
 			}			
 		}
 	}
 
-	void App::DrawStandardTriangle(const L3DGraphics::Vertex& peak, const L3DGraphics::Vertex& left, const L3DGraphics::Vertex& right
-		, int peak_y, int line_y, RENDER_STATE rs){
+	void App::DrawStandardTriangle(const Vertex& peak, const Vertex& left, const Vertex& right
+		, int peak_y, int line_y, RENDER_STATE rs, const Texture* ts){
 		if (peak_y == line_y){
 			return;
 		}
@@ -573,8 +639,11 @@ namespace L3DApp{
 			int x_end = int(scan_right.pos.x + 0.5f);
 			for (int index_x = x_begin; index_x <= x_end; ++index_x){
 				int col = ERROR_COL;
-				if (rs & RS_TEXTURE) {
-					//todo
+				if (rs & RS_TEXTURE && ts != 0) {
+					float w = 1.0f / scan_left.rhw;
+					float tx = ts->w * scan_left.tex.u * w;
+					float ty = ts->h * scan_left.tex.v * w;
+					col = TextureColor(*ts, int(tx + 0.5f), int(ty + 0.5f));
 				}
 				if (rs & RS_COLOR){
 					int r = int(FloatClamp(scan_left.c_r, COL_MIN, COL_MAX) + 0.5f);

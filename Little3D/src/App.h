@@ -7,6 +7,7 @@ namespace L3DGraphics{
 	class Mesh;
 	class Transform;
 	class Vertex;
+	class Texture;
 }
 
 namespace L3DApp{
@@ -34,7 +35,8 @@ namespace L3DApp{
 	public:
 		L3DGraphics::Transform* transform;
 		L3DGraphics::Mesh* mesh_renderer;
-		L3DGraphics::Mesh* mesh_filter;
+		const L3DGraphics::Mesh* mesh_filter;
+		const L3DGraphics::Texture* tex;
 	};
 
 	class App{
@@ -50,8 +52,10 @@ namespace L3DApp{
 		unsigned char* m_offscreen_framebuffer = 0;
 
 		Device m_soft_device;
-		L3DGraphics::Mesh* mesh;
 		GameObject m_game_obj;
+
+		L3DGraphics::Mesh* mesh_res;
+		L3DGraphics::Texture* texture_res;
 	public:
 		static App& GetInstance(){
 			static App instance;
@@ -78,9 +82,9 @@ namespace L3DApp{
 		void DrawGameObject(const GameObject& obj);
 
 		void DrawStandardTriangle(const L3DGraphics::Vertex& peak, const L3DGraphics::Vertex& left, const L3DGraphics::Vertex& right
-			, int peak_y, int line_y, RENDER_STATE rs);
+			, int peak_y, int line_y, RENDER_STATE rs, const L3DGraphics::Texture* ts = 0);
 		void DrawTriangle(const L3DGraphics::Vertex& v0, const L3DGraphics::Vertex& v1, const L3DGraphics::Vertex& v2
-			, int s0_x, int s0_y, int s1_x, int s1_y, int s2_x, int s2_y, RENDER_STATE rs);
+			, int s0_x, int s0_y, int s1_x, int s1_y, int s2_x, int s2_y, RENDER_STATE rs, const L3DGraphics::Texture* ts = 0);
 
 		void InitGameObject();
 		void ReleaseGameObject();

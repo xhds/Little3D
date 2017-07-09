@@ -202,5 +202,20 @@ namespace L3DGraphics{
 		ret.tex.u = a.tex.u + b.tex.u;
 		ret.tex.v = a.tex.v + b.tex.v;
 	}
+
+	class Texture{
+	public:
+		int w, h;
+		float *r, *g, *b, *a;
+		float **row_r, **row_g, **row_b, **row_a;
+	};
+
+	int TextureColor(const Texture& t, int x, int y){
+		int ret = (255 << 16) | 255;
+		if (x >= 0 && x < t.w && y >= 0 && y < t.h){
+			ret = ((int(t.row_r[y][x] + 0.5f)) << 16) | ((int(t.row_g[y][x] + 0.5f)) << 8) | (int(t.row_b[y][x] + 0.5f));
+		}
+		return ret;
+	}
 }
 #endif
