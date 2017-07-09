@@ -87,6 +87,15 @@ namespace L3DGraphics{
 		return a.x < -a.w || a.x > a.w || a.y < -a.w || a.y > a.w || a.z < 0.0f || a.z > a.w;
 	}
 
+	//a, b, c is counter-clockwise in screen-space , screen is upside-down£¬so it's less-than zero is counter-clockwise.
+	bool IsBackfaceInScreen(const L3DMath::Vector& a, const L3DMath::Vector& b, const L3DMath::Vector& c){
+		L3DMath::Vector ab;
+		L3DMath::VectorSub(ab, b, a);
+		L3DMath::Vector bc;
+		L3DMath::VectorSub(bc, c, b);
+		return (ab.x * bc.y - ab.y * bc.x) < 0;
+	}
+
 	void ProjectiveToScreen(L3DMath::Vector& ret, const L3DMath::Vector& a, int width, int height) {
 		float rhw = 1.0f / a.w;
 		ret.x = (1.0f + a.x * rhw) * width * 0.5f;

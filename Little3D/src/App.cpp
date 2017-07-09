@@ -373,9 +373,11 @@ namespace L3DApp{
 				L3DGraphics::ProjectiveToScreen(s0, v0.pos, WIN_W, WIN_H);
 				L3DGraphics::ProjectiveToScreen(s1, v1.pos, WIN_W, WIN_H);
 				L3DGraphics::ProjectiveToScreen(s2, v2.pos, WIN_W, WIN_H);
+				if (IsBackfaceInScreen(s0, s1, s2)){  //backface-culling
+					continue;
+				}
 				int v0x = int(s0.x + 0.5f), v1x = int(s1.x + 0.5f), v2x = int(s2.x + 0.5f);  //screen buffer index
 				int v0y = int(s0.y + 0.5f), v1y = int(s1.y + 0.5f), v2y = int(s2.y + 0.5f);  //screen buffer index
-
 				if (m_soft_device.render_state & TEXTURE) {
 
 				}
