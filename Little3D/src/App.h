@@ -76,10 +76,8 @@ namespace L3DApp{
 		void DrawLine(int x1, int y1, int x2, int y2, int color);
 		void DrawGameObject(const GameObject& obj);
 
-		void DrawUpTriangle(const L3DGraphics::Vertex& up, const L3DGraphics::Vertex& left, const L3DGraphics::Vertex& right
-			, int up_y, int down_y, int left_x, int right_x);
-		void DrawDownTriangle(const L3DGraphics::Vertex& left, const L3DGraphics::Vertex& right, const L3DGraphics::Vertex& down
-			, int up_y, int down_y, int left_x, int right_x);
+		void DrawStandardTriangle(const L3DGraphics::Vertex& peak, const L3DGraphics::Vertex& left, const L3DGraphics::Vertex& right
+			, int peak_y, int line_y);
 		void DrawTriangle(const L3DGraphics::Vertex& v0, const L3DGraphics::Vertex& v1, const L3DGraphics::Vertex& v2
 			, int s0_x, int s0_y, int s1_x, int s1_y, int s2_x, int s2_y);
 

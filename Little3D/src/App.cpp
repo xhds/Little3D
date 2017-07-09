@@ -529,18 +529,18 @@ namespace L3DApp{
 		}
 		if (s0_y == s1_y){
 			if (s0_x < s1_x) {
-				DrawUpTriangle(*p2, *p0, *p1, s2_y, s0_y, s0_x, s1_x);
+				DrawStandardTriangle(*p2, *p0, *p1, s2_y, s0_y);
 			}
 			else {
-				DrawUpTriangle(*p2, *p1, *p0, s2_y, s0_y, s1_x, s0_x);
+				DrawStandardTriangle(*p2, *p1, *p0, s2_y, s0_y);
 			}
 		}
 		else if (s1_y == s2_y){
 			if (s1_x < s2_x) {
-				DrawUpTriangle(*p0, *p1, *p2, s0_y, s2_y, s1_x, s2_x);
+				DrawStandardTriangle(*p0, *p1, *p2, s0_y, s2_y);
 			}
 			else {
-				DrawUpTriangle(*p0, *p2, *p1, s0_y, s2_y, s2_x, s1_x);
+				DrawStandardTriangle(*p0, *p2, *p1, s0_y, s2_y);
 			}
 		}
 		else {
@@ -549,19 +549,19 @@ namespace L3DApp{
 			Vertex mid;
 			VertexInterp(mid, *p2, *p0, t);
 			if (mid.pos.x < p1->pos.x){
-				DrawUpTriangle(*p0, mid, *p1, s0_y, s1_y, int(mid.pos.x + 0.5f), s1_x);
-				DrawUpTriangle(*p2, mid, *p1, s2_y, s1_y, int(mid.pos.x + 0.5f), s1_x);
+				DrawStandardTriangle(*p0, mid, *p1, s0_y, s1_y);
+				DrawStandardTriangle(*p2, mid, *p1, s2_y, s1_y);
 			}
 			else {
-				DrawUpTriangle(*p0, *p1, mid, s0_y, s1_y, s1_x, int(mid.pos.x + 0.5f));
-				DrawUpTriangle(*p2, *p1, mid, s2_y, s1_y, s1_x, int(mid.pos.x + 0.5f));
+				DrawStandardTriangle(*p0, *p1, mid, s0_y, s1_y);
+				DrawStandardTriangle(*p2, *p1, mid, s2_y, s1_y);
 			}			
 		}
 	}
 
-	void App::DrawUpTriangle(const L3DGraphics::Vertex& peak, const L3DGraphics::Vertex& left, const L3DGraphics::Vertex& right
-		, int peak_y, int line_y, int left_x, int right_x){
-		if (peak_y == line_y || left_x >= right_x){
+	void App::DrawStandardTriangle(const L3DGraphics::Vertex& peak, const L3DGraphics::Vertex& left, const L3DGraphics::Vertex& right
+		, int peak_y, int line_y){
+		if (peak_y == line_y){
 			return;
 		}
 		int diff = 0;
@@ -589,13 +589,5 @@ namespace L3DApp{
 				VertexAdd(scan_left, scan_left, step);
 			}
 		}
-	}
-
-	void App::DrawDownTriangle(const L3DGraphics::Vertex& left, const L3DGraphics::Vertex& right, const L3DGraphics::Vertex& down
-		, int up_y, int down_y, int left_x, int right_x){
-		if (down.pos.y < left.pos.y || down.pos.y < right.pos.y || up_y >= down_y || left_x >= right_x){
-			return;
-		}
-
 	}
 }//namespace L3DApp
