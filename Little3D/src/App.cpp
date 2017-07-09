@@ -216,6 +216,30 @@ namespace L3DApp{
 			if (KEY_MAP[VK_LEFT] == 1){
 				obj_r_y += 0.01f;
 			}
+			if (KEY_MAP['F'] == 1){
+				if (m_soft_device.render_state & FRAME){
+					m_soft_device.render_state = RENDER_STATE(m_soft_device.render_state & (~FRAME));
+				}
+				else {
+					m_soft_device.render_state = RENDER_STATE(m_soft_device.render_state | FRAME);
+				}
+			}
+			if (KEY_MAP['T'] == 1){
+				if (m_soft_device.render_state & TEXTURE){
+					m_soft_device.render_state = RENDER_STATE(m_soft_device.render_state & (~TEXTURE));
+				}
+				else {
+					m_soft_device.render_state = RENDER_STATE(m_soft_device.render_state | TEXTURE);
+				}
+			}
+			if (KEY_MAP['C'] == 1){
+				if (m_soft_device.render_state & COLOR){
+					m_soft_device.render_state = RENDER_STATE(m_soft_device.render_state & (~COLOR));
+				}
+				else {
+					m_soft_device.render_state = RENDER_STATE(m_soft_device.render_state | COLOR);
+				}
+			}
 
 			L3DGraphics::MakeTranslateMatrix(m_game_obj.transform->position, 0.0f, 0.0f, 0.0f);
 			L3DGraphics::MakeRotateMatrix(m_game_obj.transform->rotation, 0.0f, 1.0f, 0.0f, obj_r_y);
@@ -331,27 +355,28 @@ namespace L3DApp{
 	void App::DrawGameObject(const GameObject& obj){
 		for (int i = 0; i < obj.mesh_renderer->vertex_cnt; ++i){
 			L3DGraphics::TransformVector(obj.mesh_renderer->v_list[i].pos, obj.mesh_filter->v_list[i].pos, *obj.transform);	
-			L3DGraphics::ProjectiveToScreen(m_game_obj.mesh_renderer->v_list[i].pos, m_game_obj.mesh_renderer->v_list[i].pos, WIN_W, WIN_H);
 		}
-		//L3DMath::Vector screen_pos;
 		for (int i = 0; i < obj.mesh_renderer->triangle_cnt; ++i){
-			if (m_soft_device.render_state & TEXTURE) {
+			const L3DGraphics::Triangle& t = obj.mesh_renderer->t_list[i];
+			const L3DGraphics::Vertex& v0 = obj.mesh_renderer->v_list[t.v[0]];
+			const L3DGraphics::Vertex& v1 = obj.mesh_renderer->v_list[t.v[1]];
+			const L3DGraphics::Vertex& v2 = obj.mesh_renderer->v_list[t.v[2]];
+			if (!L3DGraphics::IsClipedInCVV(v0.pos) && !L3DGraphics::IsClipedInCVV(v1.pos) && !L3DGraphics::IsClipedInCVV(v2.pos))
+			{
+				L3DMath::Vector s0, s1, s2;
+				L3DGraphics::ProjectiveToScreen(s0, v0.pos, WIN_W, WIN_H);
+				L3DGraphics::ProjectiveToScreen(s1, v1.pos, WIN_W, WIN_H);
+				L3DGraphics::ProjectiveToScreen(s2, v2.pos, WIN_W, WIN_H);
+				int v0x = int(s0.x + 0.5f), v1x = int(s1.x + 0.5f), v2x = int(s2.x + 0.5f);
+				int v0y = int(s0.y + 0.5f), v1y = int(s1.y + 0.5f), v2y = int(s2.y + 0.5f);
+				if (m_soft_device.render_state & TEXTURE) {
 
-			}
-			if (m_soft_device.render_state & FRAME){
-				const L3DGraphics::Triangle& t = obj.mesh_renderer->t_list[i];
-				const L3DGraphics::Vertex& v0 = obj.mesh_renderer->v_list[t.v[0]];
-				const L3DGraphics::Vertex& v1 = obj.mesh_renderer->v_list[t.v[1]];
-				const L3DGraphics::Vertex& v2 = obj.mesh_renderer->v_list[t.v[2]];
-				//if (!L3DGraphics::IsClipedInCVV(v0.pos) && !L3DGraphics::IsClipedInCVV(v1.pos) && !L3DGraphics::IsClipedInCVV(v2.pos))
-				{
-					int v0x = int(v0.pos.x + 0.5f), v1x = int(v1.pos.x + 0.5f), v2x = int(v2.pos.x + 0.5f);
-					int v0y = int(v0.pos.y + 0.5f), v1y = int(v1.pos.y + 0.5f), v2y = int(v2.pos.y + 0.5f);
+				}
+				if (m_soft_device.render_state & FRAME){
 					DrawLine(v0x, v0y, v1x, v1y, m_soft_device.frame_color);
 					DrawLine(v1x, v1y, v2x, v2y, m_soft_device.frame_color);
 					DrawLine(v2x, v2y, v0x, v0y, m_soft_device.frame_color);
 				}
-				
 			}
 		}
 		
