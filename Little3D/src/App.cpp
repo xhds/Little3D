@@ -26,34 +26,6 @@ namespace L3DApp{
 	static const float COL_MIN = 0.0f;
 	static const int ERROR_COL = RED | BLUE;
 
-	/*static const L3DMath::Vector LINES[2 * 10] = {
-		{ -10.0f, 0.0f, 10.0f, 1.0f },
-		{ 10.0f, 0.0f, 10.0f, 1.0f },
-		{ -10.0f, 0.0f, 5.0f, 1.0f },
-		{ 10.0f, 0.0f, 5.0f, 1.0f },
-		{ -10.0f, 0.0f, 0.0f, 1.0f },
-		{ 10.0f, 0.0f, 0.0f, 1.0f },
-		{ -10.0f, 0.0f, -5.0f, 1.0f },
-		{ 10.0f, 0.0f, -5.0f, 1.0f },
-		{ -10.0f, 0.0f, -10.0f, 1.0f },
-		{ 10.0f, 0.0f, -10.0f, 1.0f },
-		{ -10.0f, 0.0f, 10.0f, 1.0f },
-		{ -10.0f, 0.0f, -10.0f, 1.0f },
-		{ -5.0f, 0.0f, 10.0f, 1.0f },
-		{ -5.0f, 0.0f, -10.0f, 1.0f },
-		{ 0.0f, 0.0f, 10.0f, 1.0f },
-		{ 0.0f, 0.0f, -10.0f, 1.0f },
-		{ 5.0f, 0.0f, 10.0f, 1.0f },
-		{ 5.0f, 0.0f, -10.0f, 1.0f },
-		{ 10.0f, 0.0f, 10.0f, 1.0f },
-		{ 10.0f, 0.0f, -10.0f, 1.0f }
-	};
-
-	static const int LINE_COLOR[10] = {
-		BLUE, GREEN, RED, GREEN, BLUE,
-		BLUE, GREEN, RED, GREEN, BLUE
-	};*/
-
 	static int KEY_MAP[512];
 
 	int App::Init(){
@@ -154,9 +126,9 @@ namespace L3DApp{
 		ReleaseDC(m_window_hnd, origin_dc);
 	}
 
-	void App::CleanBuffer(Transform* trans){
-		int* p = m_soft_device.frame_buffer;
-		float* z = m_soft_device.z_buffer;
+	void App::CleanBuffer(){
+		int* p = m_soft_device.m_frame_buffer;
+		float* z = m_soft_device.m_zbuffer;
 		for (int i = 0; i < WIN_H; ++i){
 			int color_r = 128 * (WIN_H - 1 - i) / (WIN_H - 1);
 			int color_g = 168 * (WIN_H - 1 - i) / (WIN_H - 1);
@@ -167,18 +139,6 @@ namespace L3DApp{
 				++z;
 			}
 		}
-
-		/*if (trans){
-			for (int i = 0; i < 10; ++i){
-				L3DMath::Vector red_b = LINES[2 * i];
-				L3DMath::Vector red_e = LINES[2 * i + 1];
-				TransformVector(red_b, red_b, *trans);
-				TransformVector(red_e, red_e, *trans);
-				ProjectiveToScreen(red_b, red_b, WIN_W, WIN_H);
-				ProjectiveToScreen(red_e, red_e, WIN_W, WIN_H);
-				DrawLine(int(red_b.x + 0.5f), int(red_b.y + 0.5f), int(red_e.x + 0.5f), int(red_e.y + 0.5f), LINE_COLOR[i]);
-			}
-		}*/
 	}
 
 	void App::MainLoop(){
@@ -188,63 +148,63 @@ namespace L3DApp{
 		while (KEY_MAP[VK_ESCAPE] == 0){
 			WinMsg();
 
-			if (KEY_MAP['E'] == 1){
+			if (KEY_MAP['E']){
 				cam_y += 0.05f;
 				log_dirty = true;
 			}
-			if (KEY_MAP['Q'] == 1){
+			if (KEY_MAP['Q']){
 				cam_y -= 0.05f;
 				log_dirty = true;
 			}
-			if (KEY_MAP['W'] == 1){
+			if (KEY_MAP['W']){
 				cam_z += 0.05f;
 				log_dirty = true;
 			}
-			if (KEY_MAP['S'] == 1){
+			if (KEY_MAP['S']){
 				cam_z -= 0.05f;
 				log_dirty = true;
 			}
-			if (KEY_MAP['A'] == 1){
+			if (KEY_MAP['A']){
 				cam_x -= 0.05f;
 				log_dirty = true;
 			}
-			if (KEY_MAP['D'] == 1){
+			if (KEY_MAP['D']){
 				cam_x += 0.05f;
 				log_dirty = true;
 			}
-			if (KEY_MAP['R'] == 1){
+			if (KEY_MAP['R']){
 				cam_x = cam_y = cam_z = 0.0f;
 				log_dirty = true;
 			}
-			if (KEY_MAP[VK_RIGHT] == 1){
+			if (KEY_MAP[VK_RIGHT]){
 				obj_r_y -= 0.05f;
 			}
-			if (KEY_MAP[VK_LEFT] == 1){
+			if (KEY_MAP[VK_LEFT]){
 				obj_r_y += 0.05f;
 			}
-			if (KEY_MAP['F'] == 1){
-				m_soft_device.render_state = RS_NULL;
-				m_soft_device.render_state = RENDER_STATE(m_soft_device.render_state | RS_FRAME);
+			if (KEY_MAP['F']){
+				m_soft_device.m_render_state = RS_NULL;
+				m_soft_device.m_render_state = RENDER_STATE(m_soft_device.m_render_state | RS_FRAME);
 			}
-			if (KEY_MAP['T'] == 1){
-				m_soft_device.render_state = RS_NULL;
-				m_soft_device.render_state = RENDER_STATE(m_soft_device.render_state | RS_TEXTURE);
+			if (KEY_MAP['T']){
+				m_soft_device.m_render_state = RS_NULL;
+				m_soft_device.m_render_state = RENDER_STATE(m_soft_device.m_render_state | RS_TEXTURE);
 			}
-			if (KEY_MAP['C'] == 1){
-				m_soft_device.render_state = RS_NULL;
-				m_soft_device.render_state = RENDER_STATE(m_soft_device.render_state | RS_COLOR);
+			if (KEY_MAP['C']){
+				m_soft_device.m_render_state = RS_NULL;
+				m_soft_device.m_render_state = RENDER_STATE(m_soft_device.m_render_state | RS_COLOR);
 			}
 
-			MakeTranslateMatrix(m_game_obj.transform->position, 0.0f, 0.0f, 0.0f);
-			MakeRotateMatrix(m_game_obj.transform->rotation, 0.0f, 1.0f, 0.0f, obj_r_y);
-			MakeScaleMatrix(m_game_obj.transform->scale, 1.0f, 1.0f, 1.0f);
-			L3DMath::Vector eye = { 0.0f + cam_x, 0.0f + cam_y, -5.5f + cam_z, 1.0f};
-			L3DMath::Vector look_at = { 0.0f, 0.0f, 0.0f, 1.0f };
-			L3DMath::Vector up = { 0.0f, 1.0f, 0.0f, 1.0f};
-			MakeCameraViewMatrix(m_game_obj.transform->view, eye, look_at, up);
-			MakePerspectiveMatrixFOVLH(m_game_obj.transform->perspective, 3.1415926f * 0.5f, (float)WIN_W / (float)WIN_H, (float)CAM_NEAR, (float)CAM_FAR);
-			UpdateTransform(*m_game_obj.transform);
-			CleanBuffer(m_game_obj.transform);
+			MakeTranslateMatrix(m_game_obj.m_transform->position, 0.0f, 0.0f, 0.0f);
+			MakeRotateMatrix(m_game_obj.m_transform->rotation, 0.0f, 1.0f, 0.0f, obj_r_y);
+			MakeScaleMatrix(m_game_obj.m_transform->scale, 1.0f, 1.0f, 1.0f);
+			Vector eye = { 0.0f + cam_x, 0.0f + cam_y, -5.5f + cam_z, 1.0f};
+			Vector look_at = { 0.0f, 0.0f, 0.0f, 1.0f };
+			Vector up = { 0.0f, 1.0f, 0.0f, 1.0f};
+			MakeCameraViewMatrix(m_game_obj.m_transform->view, eye, look_at, up);
+			MakePerspectiveMatrixFOVLH(m_game_obj.m_transform->perspective, 3.1415926f * 0.5f, (float)WIN_W / (float)WIN_H, (float)CAM_NEAR, (float)CAM_FAR);
+			UpdateTransform(*m_game_obj.m_transform);
+			CleanBuffer();
 			DrawGameObject(m_game_obj);
 			SwapBuffer();
 			if (log_dirty){
@@ -273,30 +233,30 @@ namespace L3DApp{
 	void App::DrawPixel(int x, int y, int color){
 		if (x < 0 || x >= WIN_W || y < 0 || y >= WIN_H)
 			return;
-		m_soft_device.row_idx_of_frame_buffer[y][x] = color;
+		m_soft_device.m_rows_of_framebuffer[y][x] = color;
 	}
 
 	void App::InitDevice(){
-		m_soft_device.frame_buffer = (int*)m_offscreen_framebuffer;
-		m_soft_device.z_buffer = (float*)malloc(sizeof(float)* WIN_H * WIN_W);
-		m_soft_device.row_idx_of_frame_buffer = (int**)malloc(sizeof(int*) * WIN_H);
-		m_soft_device.row_idx_of_z_buffer = (float**)malloc(sizeof(float*)* WIN_H);
+		m_soft_device.m_frame_buffer = (int*)m_offscreen_framebuffer;
+		m_soft_device.m_zbuffer = (float*)malloc(sizeof(float)* WIN_H * WIN_W);
+		m_soft_device.m_rows_of_framebuffer = (int**)malloc(sizeof(int*) * WIN_H);
+		m_soft_device.m_rows_of_zbuffer = (float**)malloc(sizeof(float*)* WIN_H);
 		for (int i = 0; i < WIN_H; ++i){
-			m_soft_device.row_idx_of_frame_buffer[i] = m_soft_device.frame_buffer + i * WIN_W;
-			m_soft_device.row_idx_of_z_buffer[i] = m_soft_device.z_buffer + i * WIN_W;
+			m_soft_device.m_rows_of_framebuffer[i] = m_soft_device.m_frame_buffer + i * WIN_W;
+			m_soft_device.m_rows_of_zbuffer[i] = m_soft_device.m_zbuffer + i * WIN_W;
 		}
-		m_soft_device.render_state = RS_FRAME;
-		m_soft_device.frame_color = SPACE_LINE_COLOR;
+		m_soft_device.m_render_state = RS_FRAME;
+		m_soft_device.m_frame_color = SPACE_LINE_COLOR;
 	}
 
 	void App::ReleaseDevice(){
-		free(m_soft_device.row_idx_of_frame_buffer);
-		m_soft_device.row_idx_of_frame_buffer = 0;
-		free(m_soft_device.row_idx_of_z_buffer);
-		m_soft_device.row_idx_of_z_buffer = 0;
-		free(m_soft_device.z_buffer);
-		m_soft_device.z_buffer = 0;
-		m_soft_device.frame_buffer = 0;
+		free(m_soft_device.m_rows_of_framebuffer);
+		m_soft_device.m_rows_of_framebuffer = 0;
+		free(m_soft_device.m_rows_of_zbuffer);
+		m_soft_device.m_rows_of_zbuffer = 0;
+		free(m_soft_device.m_zbuffer);
+		m_soft_device.m_zbuffer = 0;
+		m_soft_device.m_frame_buffer = 0;
 	}
 
 	void App::DrawLine(int x1, int y1, int x2, int y2, int color){
@@ -351,16 +311,16 @@ namespace L3DApp{
 	}
 	
 	void App::DrawGameObject(const GameObject& obj){
-		for (int i = 0; i < obj.mesh_renderer->vertex_cnt; ++i){
-			TransformVector(obj.mesh_renderer->v_list[i].pos, obj.mesh_filter->v_list[i].pos, *obj.transform);	
+		for (int i = 0; i < obj.m_mesh_renderer->vertex_cnt; ++i){
+			TransformVector(obj.m_mesh_renderer->v_list[i].pos, obj.m_mesh_filter->v_list[i].pos, *obj.m_transform);	
 		}
-		for (int i = 0; i < obj.mesh_renderer->triangle_cnt; ++i){
-			const Triangle& t = obj.mesh_renderer->t_list[i];
-			const Vertex& v0 = obj.mesh_renderer->v_list[t.v[0]];
-			const Vertex& v1 = obj.mesh_renderer->v_list[t.v[1]];
-			const Vertex& v2 = obj.mesh_renderer->v_list[t.v[2]];
+		for (int i = 0; i < obj.m_mesh_renderer->triangle_cnt; ++i){
+			const Triangle& t = obj.m_mesh_renderer->t_list[i];
+			const Vertex& v0 = obj.m_mesh_renderer->v_list[t.v[0]];
+			const Vertex& v1 = obj.m_mesh_renderer->v_list[t.v[1]];
+			const Vertex& v2 = obj.m_mesh_renderer->v_list[t.v[2]];
 			if (!IsClipedInCVV(v0.pos) && !IsClipedInCVV(v1.pos) && !IsClipedInCVV(v2.pos)){
-				L3DMath::Vector s0, s1, s2;  //screen float
+				Vector s0, s1, s2;  //screen float
 				ProjectiveToScreen(s0, v0.pos, WIN_W, WIN_H);
 				ProjectiveToScreen(s1, v1.pos, WIN_W, WIN_H);
 				ProjectiveToScreen(s2, v2.pos, WIN_W, WIN_H);
@@ -369,7 +329,7 @@ namespace L3DApp{
 				}
 				int v0x = int(s0.x + 0.5f), v1x = int(s1.x + 0.5f), v2x = int(s2.x + 0.5f);  //screen buffer index
 				int v0y = int(s0.y + 0.5f), v1y = int(s1.y + 0.5f), v2y = int(s2.y + 0.5f);  //screen buffer index
-				if (m_soft_device.render_state & RS_TEXTURE || m_soft_device.render_state & RS_COLOR) {
+				if (m_soft_device.m_render_state & RS_TEXTURE || m_soft_device.m_render_state & RS_COLOR) {
 					Vertex rs0 = v0, rs1 = v1, rs2 = v2;
 					rs0.pos = s0, rs1.pos = s1, rs2.pos = s2;
 					rs0.rhw = 1.0f / rs0.pos.w;
@@ -381,53 +341,53 @@ namespace L3DApp{
 					rs1.tex.v *= rs1.rhw;
 					rs2.tex.u *= rs2.rhw;
 					rs2.tex.v *= rs2.rhw;
-					DrawTriangle(rs0, rs1, rs2, v0x, v0y, v1x, v1y, v2x, v2y, m_soft_device.render_state, texture_res);
+					DrawTriangle(rs0, rs1, rs2, v0x, v0y, v1x, v1y, v2x, v2y, m_soft_device.m_render_state, m_texture_res);
 				}
-				if (m_soft_device.render_state & RS_FRAME){
-					DrawLine(v0x, v0y, v1x, v1y, m_soft_device.frame_color);
-					DrawLine(v1x, v1y, v2x, v2y, m_soft_device.frame_color);
-					DrawLine(v2x, v2y, v0x, v0y, m_soft_device.frame_color);
+				if (m_soft_device.m_render_state & RS_FRAME){
+					DrawLine(v0x, v0y, v1x, v1y, m_soft_device.m_frame_color);
+					DrawLine(v1x, v1y, v2x, v2y, m_soft_device.m_frame_color);
+					DrawLine(v2x, v2y, v0x, v0y, m_soft_device.m_frame_color);
 				}
 			}
 		}
 	}
 
 	void App::InitGameObject(){
-		texture_res = new Texture;
-		texture_res->w = texture_res->h = 256;
-		int tex_size = texture_res->w * texture_res->h;
-		texture_res->r = new float[tex_size];
-		texture_res->g = new float[tex_size];
-		texture_res->b = new float[tex_size];
-		texture_res->a = new float[tex_size];
-		texture_res->row_r = new float*[texture_res->h];
-		texture_res->row_g = new float*[texture_res->h];
-		texture_res->row_b = new float*[texture_res->h];
-		texture_res->row_a = new float*[texture_res->h];
-		for (int i = 0; i < texture_res->h; ++i){
-			texture_res->row_r[i] = texture_res->r + i * texture_res->w;
-			texture_res->row_g[i] = texture_res->g + i * texture_res->w;
-			texture_res->row_b[i] = texture_res->b + i * texture_res->w;
-			texture_res->row_a[i] = texture_res->a + i * texture_res->w;
+		m_texture_res = new Texture;
+		m_texture_res->w = m_texture_res->h = 256;
+		int tex_size = m_texture_res->w * m_texture_res->h;
+		m_texture_res->r = new float[tex_size];
+		m_texture_res->g = new float[tex_size];
+		m_texture_res->b = new float[tex_size];
+		m_texture_res->a = new float[tex_size];
+		m_texture_res->row_r = new float*[m_texture_res->h];
+		m_texture_res->row_g = new float*[m_texture_res->h];
+		m_texture_res->row_b = new float*[m_texture_res->h];
+		m_texture_res->row_a = new float*[m_texture_res->h];
+		for (int i = 0; i < m_texture_res->h; ++i){
+			m_texture_res->row_r[i] = m_texture_res->r + i * m_texture_res->w;
+			m_texture_res->row_g[i] = m_texture_res->g + i * m_texture_res->w;
+			m_texture_res->row_b[i] = m_texture_res->b + i * m_texture_res->w;
+			m_texture_res->row_a[i] = m_texture_res->a + i * m_texture_res->w;
 		}
-		for (int y = 0; y < texture_res->h; ++y){
-			for (int x = 0; x < texture_res->w; ++x){
+		for (int y = 0; y < m_texture_res->h; ++y){
+			for (int x = 0; x < m_texture_res->w; ++x){
 				if ((y / 32) % 2 == 0 && (x / 32) % 2 == 0){
-					texture_res->row_r[y][x] = 25.0f;
-					texture_res->row_g[y][x] = 25.0f;
-					texture_res->row_b[y][x] = 25.0f;
+					m_texture_res->row_r[y][x] = 25.0f;
+					m_texture_res->row_g[y][x] = 25.0f;
+					m_texture_res->row_b[y][x] = 25.0f;
 				}
 				else if ((y / 32) % 2 == 1 && (x / 32) % 2 == 1){
-					texture_res->row_r[y][x] = 25.0f;
-					texture_res->row_g[y][x] = 25.0f;
-					texture_res->row_b[y][x] = 25.0f;
+					m_texture_res->row_r[y][x] = 25.0f;
+					m_texture_res->row_g[y][x] = 25.0f;
+					m_texture_res->row_b[y][x] = 25.0f;
 				}
 				else {
-					texture_res->row_r[y][x] = 255.0f;
-					texture_res->row_g[y][x] = 255.0f;
-					texture_res->row_b[y][x] = 255.0f;
+					m_texture_res->row_r[y][x] = 255.0f;
+					m_texture_res->row_g[y][x] = 255.0f;
+					m_texture_res->row_b[y][x] = 255.0f;
 				}
-				texture_res->row_a[y][x] = 1.0f;
+				m_texture_res->row_a[y][x] = 1.0f;
 			}
 		}
 
@@ -495,79 +455,79 @@ namespace L3DApp{
 			{ { 0, 1, 2 } }
 		};*/
 	
-		mesh_res = new Mesh;
-		mesh_res->vertex_cnt = vc;
-		mesh_res->v_list = new Vertex[mesh_res->vertex_cnt];
-		for (int i = 0; i < mesh_res->vertex_cnt; ++i){
-			mesh_res->v_list[i] = mesh_data[i];
+		m_mesh_res = new Mesh;
+		m_mesh_res->vertex_cnt = vc;
+		m_mesh_res->v_list = new Vertex[m_mesh_res->vertex_cnt];
+		for (int i = 0; i < m_mesh_res->vertex_cnt; ++i){
+			m_mesh_res->v_list[i] = mesh_data[i];
 		}
-		mesh_res->triangle_cnt = tc;
-		mesh_res->t_list = new Triangle[mesh_res->triangle_cnt];
-		for (int i = 0; i < mesh_res->triangle_cnt; ++i){
-			mesh_res->t_list[i] = tri_data[i];
-		}
-
-		m_game_obj.mesh_renderer = new Mesh;
-		m_game_obj.mesh_renderer->vertex_cnt = mesh_res->vertex_cnt;
-		m_game_obj.mesh_renderer->v_list = new Vertex[m_game_obj.mesh_renderer->vertex_cnt];
-		for (int i = 0; i < mesh_res->vertex_cnt; ++i){
-			m_game_obj.mesh_renderer->v_list[i] = mesh_res->v_list[i];
+		m_mesh_res->triangle_cnt = tc;
+		m_mesh_res->t_list = new Triangle[m_mesh_res->triangle_cnt];
+		for (int i = 0; i < m_mesh_res->triangle_cnt; ++i){
+			m_mesh_res->t_list[i] = tri_data[i];
 		}
 
-		m_game_obj.mesh_renderer->triangle_cnt = mesh_res->triangle_cnt;
-		m_game_obj.mesh_renderer->t_list = new Triangle[m_game_obj.mesh_renderer->triangle_cnt];
-		for (int i = 0; i < mesh_res->triangle_cnt; ++i){
-			m_game_obj.mesh_renderer->t_list[i] = mesh_res->t_list[i];
+		m_game_obj.m_mesh_renderer = new Mesh;
+		m_game_obj.m_mesh_renderer->vertex_cnt = m_mesh_res->vertex_cnt;
+		m_game_obj.m_mesh_renderer->v_list = new Vertex[m_game_obj.m_mesh_renderer->vertex_cnt];
+		for (int i = 0; i < m_mesh_res->vertex_cnt; ++i){
+			m_game_obj.m_mesh_renderer->v_list[i] = m_mesh_res->v_list[i];
 		}
 
-		m_game_obj.transform = new Transform;
-		m_game_obj.mesh_filter = mesh_res;
-		UpdateTransform(*m_game_obj.transform);
+		m_game_obj.m_mesh_renderer->triangle_cnt = m_mesh_res->triangle_cnt;
+		m_game_obj.m_mesh_renderer->t_list = new Triangle[m_game_obj.m_mesh_renderer->triangle_cnt];
+		for (int i = 0; i < m_mesh_res->triangle_cnt; ++i){
+			m_game_obj.m_mesh_renderer->t_list[i] = m_mesh_res->t_list[i];
+		}
+
+		m_game_obj.m_transform = new Transform;
+		m_game_obj.m_mesh_filter = m_mesh_res;
+		UpdateTransform(*m_game_obj.m_transform);
 	}
 
 	void App::ReleaseGameObject(){
 
-		delete[] texture_res->row_a;
-		texture_res->row_a = 0;
-		delete[] texture_res->row_r;
-		texture_res->row_r = 0;
-		delete[] texture_res->row_g;
-		texture_res->row_g = 0;
-		delete[] texture_res->row_b;
-		texture_res->row_b = 0;
-		delete[] texture_res->a;
-		texture_res->a = 0;
-		delete[] texture_res->r;
-		texture_res->r = 0;
-		delete[] texture_res->g;
-		texture_res->g = 0;
-		delete[] texture_res->b;
-		texture_res->b = 0;
-		delete texture_res;
-		texture_res = 0;
+		delete[] m_texture_res->row_a;
+		m_texture_res->row_a = 0;
+		delete[] m_texture_res->row_r;
+		m_texture_res->row_r = 0;
+		delete[] m_texture_res->row_g;
+		m_texture_res->row_g = 0;
+		delete[] m_texture_res->row_b;
+		m_texture_res->row_b = 0;
+		delete[] m_texture_res->a;
+		m_texture_res->a = 0;
+		delete[] m_texture_res->r;
+		m_texture_res->r = 0;
+		delete[] m_texture_res->g;
+		m_texture_res->g = 0;
+		delete[] m_texture_res->b;
+		m_texture_res->b = 0;
+		delete m_texture_res;
+		m_texture_res = 0;
 
-		delete[] mesh_res->v_list;
-		mesh_res->v_list = 0;
-		mesh_res->vertex_cnt = 0;
-		delete[] mesh_res->t_list;
-		mesh_res->t_list = 0;
-		mesh_res->vertex_cnt = 0;
-		delete mesh_res;
-		mesh_res = 0;
+		delete[] m_mesh_res->v_list;
+		m_mesh_res->v_list = 0;
+		m_mesh_res->vertex_cnt = 0;
+		delete[] m_mesh_res->t_list;
+		m_mesh_res->t_list = 0;
+		m_mesh_res->vertex_cnt = 0;
+		delete m_mesh_res;
+		m_mesh_res = 0;
 
-		delete[] m_game_obj.mesh_renderer->v_list;
-		m_game_obj.mesh_renderer->v_list = 0;
-		m_game_obj.mesh_renderer->vertex_cnt = 0;
-		delete[] m_game_obj.mesh_renderer->t_list;
-		m_game_obj.mesh_renderer->t_list = 0;
-		m_game_obj.mesh_renderer->vertex_cnt = 0;
-		delete m_game_obj.mesh_renderer;
-		m_game_obj.mesh_renderer = 0;
+		delete[] m_game_obj.m_mesh_renderer->v_list;
+		m_game_obj.m_mesh_renderer->v_list = 0;
+		m_game_obj.m_mesh_renderer->vertex_cnt = 0;
+		delete[] m_game_obj.m_mesh_renderer->t_list;
+		m_game_obj.m_mesh_renderer->t_list = 0;
+		m_game_obj.m_mesh_renderer->vertex_cnt = 0;
+		delete m_game_obj.m_mesh_renderer;
+		m_game_obj.m_mesh_renderer = 0;
 
-		delete m_game_obj.transform;
-		m_game_obj.transform = 0;
+		delete m_game_obj.m_transform;
+		m_game_obj.m_transform = 0;
 
-		m_game_obj.mesh_filter = 0;
+		m_game_obj.m_mesh_filter = 0;
 	}
 
 	void App::DrawTriangle(const Vertex& v0, const Vertex& v1, const Vertex& v2
@@ -667,8 +627,8 @@ namespace L3DApp{
 				continue;
 			}
 			for (int index_x = x_begin; index_x <= x_end; ++index_x){
-				if (scan_left.rhw >= m_soft_device.row_idx_of_z_buffer[index_y][index_x]){
-					m_soft_device.row_idx_of_z_buffer[index_y][index_x] = scan_left.rhw;
+				if (scan_left.rhw >= m_soft_device.m_rows_of_zbuffer[index_y][index_x]){
+					m_soft_device.m_rows_of_zbuffer[index_y][index_x] = scan_left.rhw;
 					int col = ERROR_COL;
 					if (rs & RS_TEXTURE && ts != 0){
 						float w = 1.0f / scan_left.rhw;

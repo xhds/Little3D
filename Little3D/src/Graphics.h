@@ -104,13 +104,6 @@ namespace L3DGraphics{
 		ret.w = a.w;
 	}
 
-	/*class Color{
-	public:
-		int r;
-		int g;
-		int b;
-	};*/
-
 	class TexUV{
 	public:
 		float u;
@@ -137,15 +130,6 @@ namespace L3DGraphics{
 		int triangle_cnt;
 		Triangle* t_list;		
 	};
-
-	/*class ScanLine{
-	public:
-		L3DMath::Vector v_start;
-		L3DMath::Vector step_info;
-		int screen_start_x;
-		int screen_start_y;
-		int screen_line_width;
-	};*/
 
 	class Transform{
 	public:

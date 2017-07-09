@@ -41,13 +41,6 @@ namespace L3DMath {
 		return sqrt(a.x * a.x + a.y * a.y + a.z * a.z);
 	}
 
-	inline void VectorUnit(Vector& a){
-		a.x = 1.0f;
-		a.y = 1.0f;
-		a.z = 1.0f;
-		a.w = 1.0f;
-	}
-
 	inline void VectorSetNormalized(Vector& a){
 		float mod = VectorMod(a);
 		if (mod != 0.0f){
@@ -56,14 +49,6 @@ namespace L3DMath {
 			a.y *= inv_mod;
 			a.z *= inv_mod;
 		}
-	}
-
-	inline void VectorGetNormalized(Vector& ret, const Vector& a){
-		float inv_mod = 1.0f / VectorMod(a);
-		ret.x = a.x * inv_mod;
-		ret.y = a.y * inv_mod;
-		ret.z = a.z * inv_mod;
-		ret.w = a.w;
 	}
 
 	inline float VectorDot(const Vector& a, const Vector& b){

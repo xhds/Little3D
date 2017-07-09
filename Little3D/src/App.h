@@ -21,22 +21,22 @@ namespace L3DApp{
 
 	class Device{
 	public:
-		int* frame_buffer;
-		float* z_buffer;
+		int* m_frame_buffer;
+		float* m_zbuffer;
 
-		int** row_idx_of_frame_buffer;
-		float** row_idx_of_z_buffer;
+		int** m_rows_of_framebuffer;
+		float** m_rows_of_zbuffer;
 
-		RENDER_STATE render_state;
-		int frame_color;
+		RENDER_STATE m_render_state;
+		int m_frame_color;
 	};
 
 	class GameObject{
 	public:
-		L3DGraphics::Transform* transform;
-		L3DGraphics::Mesh* mesh_renderer;
-		const L3DGraphics::Mesh* mesh_filter;
-		const L3DGraphics::Texture* tex;
+		L3DGraphics::Transform* m_transform;
+		L3DGraphics::Mesh* m_mesh_renderer;
+		const L3DGraphics::Mesh* m_mesh_filter;
+		const L3DGraphics::Texture* m_tex;
 	};
 
 	class App{
@@ -54,8 +54,8 @@ namespace L3DApp{
 		Device m_soft_device;
 		GameObject m_game_obj;
 
-		L3DGraphics::Mesh* mesh_res;
-		L3DGraphics::Texture* texture_res;
+		L3DGraphics::Mesh* m_mesh_res;
+		L3DGraphics::Texture* m_texture_res;
 	public:
 		static App& GetInstance(){
 			static App instance;
@@ -63,15 +63,12 @@ namespace L3DApp{
 		}
 
 		int Init();
-
 		void MainLoop();
-
 		void Exit();
-
 		static LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 	private:
 		void WinMsg();
-		void CleanBuffer(L3DGraphics::Transform* trans = 0);
+		void CleanBuffer();
 		void SwapBuffer();
 		
 		void InitDevice();
