@@ -560,7 +560,15 @@ namespace L3DApp{
 			return;
 		}
 		float dp = peak.pos.y - left.pos.y;
-		int diff = peak_y > line_y ? -1 : 1;
+		int diff = 0;
+		if (peak_y > line_y){
+			diff = -1;
+			--line_y;
+		}
+		else {
+			diff = +1;
+			++line_y;
+		}
 		for (int index_y = peak_y; index_y != line_y; index_y += diff){
 			float screen_y = index_y + 0.5f;
 			float t = 1.0f;
