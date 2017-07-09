@@ -217,10 +217,10 @@ namespace L3DApp{
 				log_dirty = true;
 			}
 			if (KEY_MAP[VK_RIGHT] == 1){
-				obj_r_y -= 0.01f;
+				obj_r_y -= 0.05f;
 			}
 			if (KEY_MAP[VK_LEFT] == 1){
-				obj_r_y += 0.01f;
+				obj_r_y += 0.05f;
 			}
 			if (KEY_MAP['F'] == 1){
 				m_soft_device.render_state = RS_NULL;
@@ -413,14 +413,14 @@ namespace L3DApp{
 		for (int y = 0; y < texture_res->h; ++y){
 			for (int x = 0; x < texture_res->w; ++x){
 				if ((y / 32) % 2 == 0 && (x / 32) % 2 == 0){
-					texture_res->row_r[y][x] = 0.0f;
-					texture_res->row_g[y][x] = 128.0f;
-					texture_res->row_b[y][x] = 192.0f;
+					texture_res->row_r[y][x] = 25.0f;
+					texture_res->row_g[y][x] = 25.0f;
+					texture_res->row_b[y][x] = 25.0f;
 				}
 				else if ((y / 32) % 2 == 1 && (x / 32) % 2 == 1){
-					texture_res->row_r[y][x] = 0.0f;
-					texture_res->row_g[y][x] = 128.0f;
-					texture_res->row_b[y][x] = 192.0f;
+					texture_res->row_r[y][x] = 25.0f;
+					texture_res->row_g[y][x] = 25.0f;
+					texture_res->row_b[y][x] = 25.0f;
 				}
 				else {
 					texture_res->row_r[y][x] = 255.0f;

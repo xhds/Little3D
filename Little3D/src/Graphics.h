@@ -211,11 +211,9 @@ namespace L3DGraphics{
 	};
 
 	int TextureColor(const Texture& t, int x, int y){
-		int ret = (255 << 16) | 255;
-		if (x >= 0 && x < t.w && y >= 0 && y < t.h){
-			ret = ((int(t.row_r[y][x] + 0.5f)) << 16) | ((int(t.row_g[y][x] + 0.5f)) << 8) | (int(t.row_b[y][x] + 0.5f));
-		}
-		return ret;
+		x = x < 0 ? 0 : (x >= t.w ? t.w - 1 : x);
+		y = y < 0 ? 0 : (y >= t.h ? t.h - 1 : y);
+		return ((int(t.row_r[y][x] + 0.5f)) << 16) | ((int(t.row_g[y][x] + 0.5f)) << 8) | (int(t.row_b[y][x] + 0.5f));;
 	}
 }
 #endif
