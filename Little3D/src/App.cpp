@@ -638,20 +638,23 @@ namespace L3DApp{
 			int x_begin = int(scan_left.pos.x + 0.5f);
 			int x_end = int(scan_right.pos.x + 0.5f);
 			for (int index_x = x_begin; index_x <= x_end; ++index_x){
-				int col = ERROR_COL;
-				if (rs & RS_TEXTURE && ts != 0) {
-					float w = 1.0f / scan_left.rhw;
-					float tx = ts->w * scan_left.tex.u * w;
-					float ty = ts->h * scan_left.tex.v * w;
-					col = TextureColor(*ts, int(tx + 0.5f), int(ty + 0.5f));
+				if (scan_left.rhw >= m_soft_device.row_idx_of_z_buffer[index_y][index_x]){
+					m_soft_device.row_idx_of_z_buffer[index_y][index_x] = scan_left.rhw;
+					int col = ERROR_COL;
+					if (rs & RS_TEXTURE && ts != 0) {
+						float w = 1.0f / scan_left.rhw;
+						float tx = ts->w * scan_left.tex.u * w;
+						float ty = ts->h * scan_left.tex.v * w;
+						col = TextureColor(*ts, int(tx + 0.5f), int(ty + 0.5f));
+					}
+					if (rs & RS_COLOR){
+						int r = int(FloatClamp(scan_left.c_r, COL_MIN, COL_MAX) + 0.5f);
+						int g = int(FloatClamp(scan_left.c_g, COL_MIN, COL_MAX) + 0.5f);
+						int b = int(FloatClamp(scan_left.c_b, COL_MIN, COL_MAX) + 0.5f);
+						col = (r << 16) | (g << 8) | b;
+					}
+					DrawPixel(index_x, index_y, col);
 				}
-				if (rs & RS_COLOR){
-					int r = int(FloatClamp(scan_left.c_r, COL_MIN, COL_MAX) + 0.5f);
-					int g = int(FloatClamp(scan_left.c_g, COL_MIN, COL_MAX) + 0.5f);
-					int b = int(FloatClamp(scan_left.c_b, COL_MIN, COL_MAX) + 0.5f);
-					col = (r << 16) | (g << 8) | b;
-				}
-				DrawPixel(index_x, index_y, col);
 				VertexAdd(scan_left, scan_left, step);
 			}
 		}
