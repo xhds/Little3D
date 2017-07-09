@@ -26,6 +26,12 @@ namespace L3DMath {
 		ret.z = a.z - b.z;
 	}
 
+	inline void VectorScale(Vector& ret, const Vector& a, float scale){
+		ret.x = a.x * scale;
+		ret.y = a.y * scale;
+		ret.z = a.z * scale;
+	}
+
 	inline float VectorMod(const Vector& a){
 		return sqrt(a.x * a.x + a.y * a.y + a.z * a.z);
 	}

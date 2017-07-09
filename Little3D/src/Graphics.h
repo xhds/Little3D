@@ -158,5 +158,34 @@ namespace L3DGraphics{
 	void TransformVector(L3DMath::Vector& ret, const L3DMath::Vector& a, const Transform& t){
 		L3DMath::VectorMulMatrix(ret, a, t.transform);
 	}
+
+	void VertexInterp(Vertex& ret, const Vertex& a, const Vertex& b, float t){
+		L3DMath::VectorInterp(ret.pos, a.pos, b.pos, t);
+		ret.color = int(L3DMath::FloatInterp((float)a.color, (float)b.color, t) + 0.5f);
+		ret.tex.u = L3DMath::FloatInterp(a.tex.u, b.tex.u, t);
+		ret.tex.v = L3DMath::FloatInterp(a.tex.v, b.tex.v, t);
+		ret.rhw = L3DMath::FloatInterp(a.rhw, b.rhw, t);
+	}
+
+	void VertexDivide(Vertex& step, const Vertex& begin, const Vertex& end){
+		float w = end.pos.x - begin.pos.x;
+		if (w != 0.0f){
+			float i_w = 1.0f / w;
+			L3DMath::VectorSub(step.pos, end.pos, begin.pos);
+			L3DMath::VectorScale(step.pos, step.pos, i_w);
+			step.color = int((end.color - begin.color) * i_w + 0.5f);
+			step.rhw = (end.rhw - begin.rhw) * i_w;
+			step.tex.u = (end.tex.u - begin.tex.u) * i_w;
+			step.tex.v = (end.tex.v - begin.tex.v) * i_w;
+		}
+	}
+
+	void VertexAdd(Vertex& ret, const Vertex& a, const Vertex& b){
+		L3DMath::VectorAdd(ret.pos, a.pos, b.pos);
+		ret.color = a.color + b.color;
+		ret.rhw = a.rhw + b.rhw;
+		ret.tex.u = a.tex.u + b.tex.u;
+		ret.tex.v = a.tex.v + b.tex.v;
+	}
 }
 #endif

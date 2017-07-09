@@ -4,6 +4,8 @@
 #include "Math.h"
 #include "Graphics.h"
 
+using namespace L3DGraphics;
+using namespace L3DMath;
 namespace L3DApp{
 
 	static const TCHAR* CLASS_NAME = _T("L3DWND");
@@ -16,8 +18,8 @@ namespace L3DApp{
 	static const int CAM_NEAR = 1;
 	static const int CAM_FAR = 500;
 
-	/*static const int RED = 255 << 16;
-	static const int GREEN = 255 << 8;
+	static const int RED = 255 << 16;
+	/*static const int GREEN = 255 << 8;
 	static const int BLUE = 255;
 
 	static const L3DMath::Vector LINES[2 * 10] = {
@@ -363,14 +365,20 @@ namespace L3DApp{
 			const L3DGraphics::Vertex& v2 = obj.mesh_renderer->v_list[t.v[2]];
 			if (!L3DGraphics::IsClipedInCVV(v0.pos) && !L3DGraphics::IsClipedInCVV(v1.pos) && !L3DGraphics::IsClipedInCVV(v2.pos))
 			{
-				L3DMath::Vector s0, s1, s2;
+				L3DMath::Vector s0, s1, s2;  //screen float
 				L3DGraphics::ProjectiveToScreen(s0, v0.pos, WIN_W, WIN_H);
 				L3DGraphics::ProjectiveToScreen(s1, v1.pos, WIN_W, WIN_H);
 				L3DGraphics::ProjectiveToScreen(s2, v2.pos, WIN_W, WIN_H);
-				int v0x = int(s0.x + 0.5f), v1x = int(s1.x + 0.5f), v2x = int(s2.x + 0.5f);
-				int v0y = int(s0.y + 0.5f), v1y = int(s1.y + 0.5f), v2y = int(s2.y + 0.5f);
+				int v0x = int(s0.x + 0.5f), v1x = int(s1.x + 0.5f), v2x = int(s2.x + 0.5f);  //screen buffer index
+				int v0y = int(s0.y + 0.5f), v1y = int(s1.y + 0.5f), v2y = int(s2.y + 0.5f);  //screen buffer index
+
 				if (m_soft_device.render_state & TEXTURE) {
 
+				}
+				if (m_soft_device.render_state & COLOR) {
+					Vertex rs0 = v0, rs1 = v1, rs2 = v2;
+					rs0.pos = s0, rs1.pos = s1, rs2.pos = s2;
+					DrawTriangle(rs0, rs1, rs2, v0x, v0y, v1x, v1y, v2x, v2y);
 				}
 				if (m_soft_device.render_state & FRAME){
 					DrawLine(v0x, v0y, v1x, v1y, m_soft_device.frame_color);
@@ -385,7 +393,7 @@ namespace L3DApp{
 
 	void App::InitGameObject(){
 		
-		int vc = 8;
+		/*int vc = 8;
 		L3DGraphics::Vertex mesh_data[8] = {
 			{ { -1.0f, 1.0f, -1.0f, 1.0f }, 0, { 0.0f, 0.0f }, 1.0f },
 			{ { 1.0f, 1.0f, -1.0f, 1.0f }, 0, { 1.0f, 0.0f }, 1.0f },
@@ -410,6 +418,17 @@ namespace L3DApp{
 			{ { 4, 1, 0 } },
 			{ { 3, 2, 6 } },
 			{ { 3, 6, 7 } }
+		};*/
+
+		int vc = 3;
+		L3DGraphics::Vertex mesh_data[3] = {
+			{ { -1.0f, 1.0f, -1.0f, 1.0f }, 0, { 0.0f, 0.0f }, 1.0f },
+			{ { 1.0f, 1.0f, -1.0f, 1.0f }, 0, { 1.0f, 0.0f }, 1.0f },
+			{ { 1.0f, -1.0f, -1.0f, 1.0f }, 0, { 1.0f, 1.0f }, 1.0f }
+		};
+		int tc = 1;
+		L3DGraphics::Triangle tri_data[1] {
+			{ { 0, 1, 2 } }
 		};
 
 		mesh = new L3DGraphics::Mesh;
@@ -466,5 +485,106 @@ namespace L3DApp{
 		m_game_obj.transform = 0;
 
 		m_game_obj.mesh_filter = 0;
+	}
+
+	void App::DrawTriangle(const L3DGraphics::Vertex& v0, const L3DGraphics::Vertex& v1, const L3DGraphics::Vertex& v2
+		, int s0_x, int s0_y, int s1_x, int s1_y, int s2_x, int s2_y){
+		const L3DGraphics::Vertex *p0 = &v0, *p1 = &v1, *p2 = &v2;
+		if (s0_y > s1_y){
+			int temp = s0_y;
+			s0_y = s1_y;
+			s1_y = temp;
+			temp = s0_x;
+			s0_x = s1_x;
+			s1_x = temp;
+			const L3DGraphics::Vertex *pt = p0;
+			p0 = p1;
+			p1 = pt;
+		}
+		if (s0_y > s2_y){
+			int temp = s0_y;
+			s0_y = s2_y;
+			s2_y = temp;
+			temp = s0_x;
+			s0_x = s2_x;
+			s2_x = temp;
+			const L3DGraphics::Vertex *pt = p0;
+			p0 = p2;
+			p2 = pt;
+		}
+		if (s1_y > s2_y){
+			int temp = s1_y;
+			s1_y = s2_y;
+			s2_y = temp;
+			temp = s1_x;
+			s1_x = s2_x;
+			s2_x = temp;
+			const L3DGraphics::Vertex *pt = p1;
+			p1 = p2;
+			p2 = pt;
+		}
+		if (s0_y == s1_y){
+			if (s0_x < s1_x) {
+				DrawUpTriangle(v2, v0, v1, s2_y, s0_y, s0_x, s1_x);
+			}
+			else {
+				DrawUpTriangle(v2, v1, v0, s2_y, s0_y, s1_x, s0_x);
+			}
+		}
+		else if (s1_y == s2_y){
+			if (s1_x < s2_x) {
+				DrawUpTriangle(v0, v1, v2, s0_y, s2_y, s1_x, s2_x);
+			}
+			else {
+				DrawUpTriangle(v0, v2, v1, s0_y, s2_y, s2_x, s1_x);
+			}
+		}
+		else {
+			float t = (p2->pos.y - p1->pos.y) / (p2->pos.y - p0->pos.y);
+			Vertex mid;
+			VertexInterp(mid, *p2, *p0, t);
+			if (mid.pos.x < p1->pos.x){
+				DrawUpTriangle(v0, mid, v1, s0_y, s1_y, int(mid.pos.x + 0.5f), s1_x);
+				DrawUpTriangle(v2, mid, v1, s2_y, s1_y, int(mid.pos.x + 0.5f), s1_x);
+			}
+			else {
+				DrawUpTriangle(v0, v1, mid, s0_y, s1_y, s1_x, int(mid.pos.x + 0.5f));
+				DrawUpTriangle(v2, v1, mid, s2_y, s1_y, s1_x, int(mid.pos.x + 0.5f));
+			}			
+		}
+	}
+
+	void App::DrawUpTriangle(const L3DGraphics::Vertex& peak, const L3DGraphics::Vertex& left, const L3DGraphics::Vertex& right
+		, int peak_y, int line_y, int left_x, int right_x){
+		if (peak_y == line_y || left_x >= right_x){
+			return;
+		}
+		float dp = peak.pos.y - left.pos.y;
+		int diff = peak_y > line_y ? -1 : 1;
+		for (int index_y = peak_y; index_y != line_y; index_y += diff){
+			float screen_y = index_y + 0.5f;
+			float t = 1.0f;
+			if (dp != 0.0f){
+				t = abs((peak.pos.y - screen_y) / dp);
+			}
+			Vertex scan_left, scan_right, step;
+			VertexInterp(scan_left, peak, left, t);
+			VertexInterp(scan_right, peak, right, t);
+			VertexDivide(step, scan_left, scan_right);
+			int x_begin = int(scan_left.pos.x + 0.5f);
+			int x_end = int(scan_right.pos.x + 0.5f);
+			for (int index_x = x_begin; index_x <= x_end; ++index_x){
+				DrawPixel(index_x, index_y, RED); //todo È¡ÑÕÉ«
+				VertexAdd(scan_left, scan_left, step);
+			}
+		}
+	}
+
+	void App::DrawDownTriangle(const L3DGraphics::Vertex& left, const L3DGraphics::Vertex& right, const L3DGraphics::Vertex& down
+		, int up_y, int down_y, int left_x, int right_x){
+		if (down.pos.y < left.pos.y || down.pos.y < right.pos.y || up_y >= down_y || left_x >= right_x){
+			return;
+		}
+
 	}
 }//namespace L3DApp
