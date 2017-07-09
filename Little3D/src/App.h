@@ -12,9 +12,10 @@ namespace L3DGraphics{
 namespace L3DApp{
 
 	enum RENDER_STATE{
-		FRAME = 1,
-		COLOR = 2,
-		TEXTURE = 4
+		RS_NULL = 0,
+		RS_FRAME = 1,
+		RS_COLOR = 2,
+		RS_TEXTURE = 4
 	};
 
 	class Device{
@@ -77,9 +78,9 @@ namespace L3DApp{
 		void DrawGameObject(const GameObject& obj);
 
 		void DrawStandardTriangle(const L3DGraphics::Vertex& peak, const L3DGraphics::Vertex& left, const L3DGraphics::Vertex& right
-			, int peak_y, int line_y);
+			, int peak_y, int line_y, RENDER_STATE rs);
 		void DrawTriangle(const L3DGraphics::Vertex& v0, const L3DGraphics::Vertex& v1, const L3DGraphics::Vertex& v2
-			, int s0_x, int s0_y, int s1_x, int s1_y, int s2_x, int s2_y);
+			, int s0_x, int s0_y, int s1_x, int s1_y, int s2_x, int s2_y, RENDER_STATE rs);
 
 		void InitGameObject();
 		void ReleaseGameObject();

@@ -4,6 +4,11 @@
 #include <math.h>
 
 namespace L3DMath {
+
+	inline float FloatClamp(float t, float min, float max){
+		return t < min ? min : (t > max ? max : t);
+	}
+
 	struct Vector {
 		float x, y, z, w;
 	};

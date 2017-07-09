@@ -120,7 +120,7 @@ namespace L3DGraphics{
 	class Vertex{
 	public:
 		L3DMath::Vector pos;
-		int color;
+		float c_r, c_g, c_b;
 		TexUV tex;
 		float rhw;
 	};
@@ -170,7 +170,9 @@ namespace L3DGraphics{
 
 	void VertexInterp(Vertex& ret, const Vertex& a, const Vertex& b, float t){
 		L3DMath::VectorInterp(ret.pos, a.pos, b.pos, t);
-		ret.color = int(L3DMath::FloatInterp((float)a.color, (float)b.color, t) + 0.5f);
+		ret.c_r = L3DMath::FloatInterp(a.c_r, b.c_r, t);
+		ret.c_g = L3DMath::FloatInterp(a.c_g, b.c_g, t);
+		ret.c_b = L3DMath::FloatInterp(a.c_b, b.c_b, t);
 		ret.tex.u = L3DMath::FloatInterp(a.tex.u, b.tex.u, t);
 		ret.tex.v = L3DMath::FloatInterp(a.tex.v, b.tex.v, t);
 		ret.rhw = L3DMath::FloatInterp(a.rhw, b.rhw, t);
@@ -182,7 +184,9 @@ namespace L3DGraphics{
 			float i_w = 1.0f / w;
 			L3DMath::VectorSub(step.pos, end.pos, begin.pos);
 			L3DMath::VectorScale(step.pos, step.pos, i_w);
-			step.color = int((end.color - begin.color) * i_w + 0.5f);
+			step.c_r = (end.c_r - begin.c_r) * i_w;
+			step.c_g = (end.c_g - begin.c_g) * i_w;
+			step.c_b = (end.c_b - begin.c_b) * i_w;
 			step.rhw = (end.rhw - begin.rhw) * i_w;
 			step.tex.u = (end.tex.u - begin.tex.u) * i_w;
 			step.tex.v = (end.tex.v - begin.tex.v) * i_w;
@@ -191,7 +195,9 @@ namespace L3DGraphics{
 
 	void VertexAdd(Vertex& ret, const Vertex& a, const Vertex& b){
 		L3DMath::VectorAdd(ret.pos, a.pos, b.pos);
-		ret.color = a.color + b.color;
+		ret.c_r = a.c_r + b.c_r;
+		ret.c_g = a.c_g + b.c_g;
+		ret.c_b = a.c_b + b.c_b;
 		ret.rhw = a.rhw + b.rhw;
 		ret.tex.u = a.tex.u + b.tex.u;
 		ret.tex.v = a.tex.v + b.tex.v;

@@ -19,10 +19,14 @@ namespace L3DApp{
 	static const int CAM_FAR = 500;
 
 	static const int RED = 255 << 16;
-	/*static const int GREEN = 255 << 8;
+	static const int GREEN = 255 << 8;
 	static const int BLUE = 255;
+	static const int BLACK = 0;
+	static const float COL_MAX = 255.0f;
+	static const float COL_MIN = 0.0f;
+	static const int ERROR_COL = RED | BLUE;
 
-	static const L3DMath::Vector LINES[2 * 10] = {
+	/*static const L3DMath::Vector LINES[2 * 10] = {
 		{ -10.0f, 0.0f, 10.0f, 1.0f },
 		{ 10.0f, 0.0f, 10.0f, 1.0f },
 		{ -10.0f, 0.0f, 5.0f, 1.0f },
@@ -219,28 +223,16 @@ namespace L3DApp{
 				obj_r_y += 0.01f;
 			}
 			if (KEY_MAP['F'] == 1){
-				if (m_soft_device.render_state & FRAME){
-					m_soft_device.render_state = RENDER_STATE(m_soft_device.render_state & (~FRAME));
-				}
-				else {
-					m_soft_device.render_state = RENDER_STATE(m_soft_device.render_state | FRAME);
-				}
+				m_soft_device.render_state = RS_NULL;
+				m_soft_device.render_state = RENDER_STATE(m_soft_device.render_state | RS_FRAME);
 			}
 			if (KEY_MAP['T'] == 1){
-				if (m_soft_device.render_state & TEXTURE){
-					m_soft_device.render_state = RENDER_STATE(m_soft_device.render_state & (~TEXTURE));
-				}
-				else {
-					m_soft_device.render_state = RENDER_STATE(m_soft_device.render_state | TEXTURE);
-				}
+				m_soft_device.render_state = RS_NULL;
+				m_soft_device.render_state = RENDER_STATE(m_soft_device.render_state | RS_TEXTURE);
 			}
 			if (KEY_MAP['C'] == 1){
-				if (m_soft_device.render_state & COLOR){
-					m_soft_device.render_state = RENDER_STATE(m_soft_device.render_state & (~COLOR));
-				}
-				else {
-					m_soft_device.render_state = RENDER_STATE(m_soft_device.render_state | COLOR);
-				}
+				m_soft_device.render_state = RS_NULL;
+				m_soft_device.render_state = RENDER_STATE(m_soft_device.render_state | RS_COLOR);
 			}
 
 			L3DGraphics::MakeTranslateMatrix(m_game_obj.transform->position, 0.0f, 0.0f, 0.0f);
@@ -293,7 +285,7 @@ namespace L3DApp{
 			m_soft_device.row_idx_of_frame_buffer[i] = m_soft_device.frame_buffer + i * WIN_W;
 			m_soft_device.row_idx_of_z_buffer[i] = m_soft_device.z_buffer + i * WIN_W;
 		}
-		m_soft_device.render_state = FRAME;
+		m_soft_device.render_state = RS_FRAME;
 		m_soft_device.frame_color = SPACE_LINE_COLOR;
 	}
 
@@ -367,8 +359,7 @@ namespace L3DApp{
 			const L3DGraphics::Vertex& v0 = obj.mesh_renderer->v_list[t.v[0]];
 			const L3DGraphics::Vertex& v1 = obj.mesh_renderer->v_list[t.v[1]];
 			const L3DGraphics::Vertex& v2 = obj.mesh_renderer->v_list[t.v[2]];
-			if (!L3DGraphics::IsClipedInCVV(v0.pos) && !L3DGraphics::IsClipedInCVV(v1.pos) && !L3DGraphics::IsClipedInCVV(v2.pos))
-			{
+			if (!L3DGraphics::IsClipedInCVV(v0.pos) && !L3DGraphics::IsClipedInCVV(v1.pos) && !L3DGraphics::IsClipedInCVV(v2.pos)){
 				L3DMath::Vector s0, s1, s2;  //screen float
 				L3DGraphics::ProjectiveToScreen(s0, v0.pos, WIN_W, WIN_H);
 				L3DGraphics::ProjectiveToScreen(s1, v1.pos, WIN_W, WIN_H);
@@ -378,37 +369,31 @@ namespace L3DApp{
 				}
 				int v0x = int(s0.x + 0.5f), v1x = int(s1.x + 0.5f), v2x = int(s2.x + 0.5f);  //screen buffer index
 				int v0y = int(s0.y + 0.5f), v1y = int(s1.y + 0.5f), v2y = int(s2.y + 0.5f);  //screen buffer index
-				if (m_soft_device.render_state & TEXTURE) {
-
-				}
-				if (m_soft_device.render_state & COLOR) {
+				if (m_soft_device.render_state & RS_TEXTURE || m_soft_device.render_state & RS_COLOR) {
 					Vertex rs0 = v0, rs1 = v1, rs2 = v2;
 					rs0.pos = s0, rs1.pos = s1, rs2.pos = s2;
-					DrawTriangle(rs0, rs1, rs2, v0x, v0y, v1x, v1y, v2x, v2y);
+					DrawTriangle(rs0, rs1, rs2, v0x, v0y, v1x, v1y, v2x, v2y, m_soft_device.render_state);
 				}
-				if (m_soft_device.render_state & FRAME){
+				if (m_soft_device.render_state & RS_FRAME){
 					DrawLine(v0x, v0y, v1x, v1y, m_soft_device.frame_color);
 					DrawLine(v1x, v1y, v2x, v2y, m_soft_device.frame_color);
 					DrawLine(v2x, v2y, v0x, v0y, m_soft_device.frame_color);
 				}
 			}
 		}
-		
-		
 	}
 
 	void App::InitGameObject(){
-		
 		int vc = 8;
 		L3DGraphics::Vertex mesh_data[8] = {
-			{ { -1.0f, 1.0f, -1.0f, 1.0f }, 0, { 0.0f, 0.0f }, 1.0f },
-			{ { 1.0f, 1.0f, -1.0f, 1.0f }, 0, { 1.0f, 0.0f }, 1.0f },
-			{ { 1.0f, -1.0f, -1.0f, 1.0f }, 0, { 1.0f, 1.0f }, 1.0f },
-			{ { -1.0f, -1.0f, -1.0f, 1.0f }, 0, { 0.0f, 1.0f }, 1.0f },
-			{ { -1.0f, 1.0f, 1.0f, 1.0f }, 0, { 0.0f, 0.0f }, 1.0f },
-			{ { 1.0f, 1.0f, 1.0f, 1.0f }, 0, { 1.0f, 0.0f }, 1.0f },
-			{ { 1.0f, -1.0f, 1.0f, 1.0f }, 0, { 1.0f, 1.0f }, 1.0f },
-			{ { -1.0f, -1.0f, 1.0f, 1.0f }, 0, { 0.0f, 1.0f }, 1.0f }
+			{ { -1.0f, 1.0f, -1.0f, 1.0f }, 255.0f, 0.0f, 0.0f, { 0.0f, 0.0f }, 1.0f },
+			{ { 1.0f, 1.0f, -1.0f, 1.0f }, 0.0f, 255.0f, 0.0f, { 1.0f, 0.0f }, 1.0f },
+			{ { 1.0f, -1.0f, -1.0f, 1.0f }, 0.0f, 0.0f, 255.0f , { 1.0f, 1.0f }, 1.0f },
+			{ { -1.0f, -1.0f, -1.0f, 1.0f }, 0.0f, 0.0f, 0.0f , { 0.0f, 1.0f }, 1.0f },
+			{ { -1.0f, 1.0f, 1.0f, 1.0f },  255.0f, 0.0f, 0.0f , { 0.0f, 0.0f }, 1.0f },
+			{ { 1.0f, 1.0f, 1.0f, 1.0f },  0.0f, 255.0f, 0.0f , { 1.0f, 0.0f }, 1.0f },
+			{ { 1.0f, -1.0f, 1.0f, 1.0f },  0.0f, 0.0f, 255.0f , { 1.0f, 1.0f }, 1.0f },
+			{ { -1.0f, -1.0f, 1.0f, 1.0f },  0.0f, 0.0f, 0.0f , { 0.0f, 1.0f }, 1.0f }
 		};
 		int tc = 12;
 		L3DGraphics::Triangle tri_data[12] {
@@ -494,7 +479,7 @@ namespace L3DApp{
 	}
 
 	void App::DrawTriangle(const L3DGraphics::Vertex& v0, const L3DGraphics::Vertex& v1, const L3DGraphics::Vertex& v2
-		, int s0_x, int s0_y, int s1_x, int s1_y, int s2_x, int s2_y){
+		, int s0_x, int s0_y, int s1_x, int s1_y, int s2_x, int s2_y, RENDER_STATE rs){
 		const L3DGraphics::Vertex *p0 = &v0, *p1 = &v1, *p2 = &v2;
 		if (s0_y > s1_y){
 			int temp = s0_y;
@@ -531,38 +516,38 @@ namespace L3DApp{
 		}
 		if (s0_y == s1_y){
 			if (s0_x < s1_x) {
-				DrawStandardTriangle(*p2, *p0, *p1, s2_y, s0_y);
+				DrawStandardTriangle(*p2, *p0, *p1, s2_y, s0_y, rs);
 			}
 			else {
-				DrawStandardTriangle(*p2, *p1, *p0, s2_y, s0_y);
+				DrawStandardTriangle(*p2, *p1, *p0, s2_y, s0_y, rs);
 			}
 		}
 		else if (s1_y == s2_y){
 			if (s1_x < s2_x) {
-				DrawStandardTriangle(*p0, *p1, *p2, s0_y, s2_y);
+				DrawStandardTriangle(*p0, *p1, *p2, s0_y, s2_y, rs);
 			}
 			else {
-				DrawStandardTriangle(*p0, *p2, *p1, s0_y, s2_y);
+				DrawStandardTriangle(*p0, *p2, *p1, s0_y, s2_y, rs);
 			}
 		}
 		else {
 			float t = (p2->pos.y - p1->pos.y) / (p2->pos.y - p0->pos.y);
-			t = t < 0.0f ? 0.0f : (t > 1.0f ? 1.0f : t);
+			t = FloatClamp(t, 0.0f, 1.0f);
 			Vertex mid;
 			VertexInterp(mid, *p2, *p0, t);
 			if (mid.pos.x < p1->pos.x){
-				DrawStandardTriangle(*p0, mid, *p1, s0_y, s1_y);
-				DrawStandardTriangle(*p2, mid, *p1, s2_y, s1_y);
+				DrawStandardTriangle(*p0, mid, *p1, s0_y, s1_y, rs);
+				DrawStandardTriangle(*p2, mid, *p1, s2_y, s1_y, rs);
 			}
 			else {
-				DrawStandardTriangle(*p0, *p1, mid, s0_y, s1_y);
-				DrawStandardTriangle(*p2, *p1, mid, s2_y, s1_y);
+				DrawStandardTriangle(*p0, *p1, mid, s0_y, s1_y, rs);
+				DrawStandardTriangle(*p2, *p1, mid, s2_y, s1_y, rs);
 			}			
 		}
 	}
 
 	void App::DrawStandardTriangle(const L3DGraphics::Vertex& peak, const L3DGraphics::Vertex& left, const L3DGraphics::Vertex& right
-		, int peak_y, int line_y){
+		, int peak_y, int line_y, RENDER_STATE rs){
 		if (peak_y == line_y){
 			return;
 		}
@@ -579,7 +564,7 @@ namespace L3DApp{
 		for (int index_y = peak_y; index_y != line_y; index_y += diff){
 			float screen_y = index_y + 0.5f;
 			float t = abs((peak.pos.y - screen_y) / dp);
-			t = t < 0.0f ? t = 0.0f : (t > 1.0f ? 1.0f : t);
+			t = FloatClamp(t, 0.0f, 1.0f);
 			Vertex scan_left, scan_right, step;
 			VertexInterp(scan_left, peak, left, t);
 			VertexInterp(scan_right, peak, right, t);
@@ -587,7 +572,17 @@ namespace L3DApp{
 			int x_begin = int(scan_left.pos.x + 0.5f);
 			int x_end = int(scan_right.pos.x + 0.5f);
 			for (int index_x = x_begin; index_x <= x_end; ++index_x){
-				DrawPixel(index_x, index_y, RED); //todo È¡ÑÕÉ«
+				int col = ERROR_COL;
+				if (rs & RS_TEXTURE) {
+					//todo
+				}
+				if (rs & RS_COLOR){
+					int r = int(FloatClamp(scan_left.c_r, COL_MIN, COL_MAX) + 0.5f);
+					int g = int(FloatClamp(scan_left.c_g, COL_MIN, COL_MAX) + 0.5f);
+					int b = int(FloatClamp(scan_left.c_b, COL_MIN, COL_MAX) + 0.5f);
+					col = (r << 16) | (g << 8) | b;
+				}
+				DrawPixel(index_x, index_y, col);
 				VertexAdd(scan_left, scan_left, step);
 			}
 		}
