@@ -324,11 +324,16 @@ namespace L3DApp{
 				ProjectiveToScreen(s0, v0.pos, WIN_W, WIN_H);
 				ProjectiveToScreen(s1, v1.pos, WIN_W, WIN_H);
 				ProjectiveToScreen(s2, v2.pos, WIN_W, WIN_H);
+				int v0x = int(s0.x + 0.5f), v1x = int(s1.x + 0.5f), v2x = int(s2.x + 0.5f);  //screen buffer index
+				int v0y = int(s0.y + 0.5f), v1y = int(s1.y + 0.5f), v2y = int(s2.y + 0.5f);  //screen buffer index
+				if (m_soft_device.m_render_state & RS_FRAME){
+					DrawLine(v0x, v0y, v1x, v1y, m_soft_device.m_frame_color);
+					DrawLine(v1x, v1y, v2x, v2y, m_soft_device.m_frame_color);
+					DrawLine(v2x, v2y, v0x, v0y, m_soft_device.m_frame_color);
+				}
 				if (IsBackfaceInScreen(s0, s1, s2)){  //backface-culling
 					continue;
 				}
-				int v0x = int(s0.x + 0.5f), v1x = int(s1.x + 0.5f), v2x = int(s2.x + 0.5f);  //screen buffer index
-				int v0y = int(s0.y + 0.5f), v1y = int(s1.y + 0.5f), v2y = int(s2.y + 0.5f);  //screen buffer index
 				if (m_soft_device.m_render_state & RS_TEXTURE || m_soft_device.m_render_state & RS_COLOR) {
 					Vertex rs0 = v0, rs1 = v1, rs2 = v2;
 					rs0.pos = s0, rs1.pos = s1, rs2.pos = s2;
@@ -342,12 +347,7 @@ namespace L3DApp{
 					rs2.tex.u *= rs2.rhw;
 					rs2.tex.v *= rs2.rhw;
 					DrawTriangle(rs0, rs1, rs2, v0x, v0y, v1x, v1y, v2x, v2y, m_soft_device.m_render_state, m_texture_res);
-				}
-				if (m_soft_device.m_render_state & RS_FRAME){
-					DrawLine(v0x, v0y, v1x, v1y, m_soft_device.m_frame_color);
-					DrawLine(v1x, v1y, v2x, v2y, m_soft_device.m_frame_color);
-					DrawLine(v2x, v2y, v0x, v0y, m_soft_device.m_frame_color);
-				}
+				}	
 			}
 		}
 	}
